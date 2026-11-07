@@ -1,0 +1,14 @@
+{
+  "name": "pawhaven-server",
+  "version": "1.0.0",
+  "description": "PawHaven Backend Server",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "body-parser": "^2.4.0",
+    "json-server": "0.17.4"
+  }
+}
