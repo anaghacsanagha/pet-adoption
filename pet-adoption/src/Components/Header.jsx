@@ -2,11 +2,13 @@
 import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 
-function Header() {
+function Header({ darkMode, setDarkMode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem("pawhavenUser") || "null");
+  const user = JSON.parse(
+    localStorage.getItem("pawhavenUser") || "null"
+  );
 
   const handleLogout = () => {
     localStorage.removeItem("pawhavenUser");
@@ -20,6 +22,7 @@ function Header() {
     <header className="site-header">
       <div className="header-container">
 
+        {/* Logo */}
         <Link
           to={user ? "/home" : "/"}
           className="brand-logo"
@@ -29,6 +32,7 @@ function Header() {
           <span>PawHaven</span>
         </Link>
 
+        {/* Mobile Menu Button */}
         <button
           className="menu-toggle"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -37,7 +41,9 @@ function Header() {
           {menuOpen ? "✕" : "☰"}
         </button>
 
+        {/* Navigation */}
         <nav className={`header-nav ${menuOpen ? "active" : ""}`}>
+
           {user ? (
             <>
               <NavLink to="/home" onClick={closeMenu}>
@@ -60,11 +66,27 @@ function Header() {
                 My Dashboard
               </NavLink>
 
+              {/* Logout Button */}
               <button
                 className="header-login-btn"
                 onClick={handleLogout}
               >
                 Logout
+              </button>
+
+              {/* Dark / Light Mode Button - After Logout */}
+              <button
+                type="button"
+                className="theme-toggle-btn"
+                onClick={() => setDarkMode((prev) => !prev)}
+                title={darkMode ? "Light Mode" : "Dark Mode"}
+                aria-label={
+                  darkMode
+                    ? "Switch to light mode"
+                    : "Switch to dark mode"
+                }
+              >
+                {darkMode ? "☀️" : "🌙"}
               </button>
             </>
           ) : (
@@ -96,14 +118,28 @@ function Header() {
               >
                 Register
               </Link>
+
+              {/* Dark / Light Mode Button */}
+              <button
+                type="button"
+                className="theme-toggle-btn"
+                onClick={() => setDarkMode((prev) => !prev)}
+                title={darkMode ? "Light Mode" : "Dark Mode"}
+                aria-label={
+                  darkMode
+                    ? "Switch to light mode"
+                    : "Switch to dark mode"
+                }
+              >
+                {darkMode ? "☀️" : "🌙"}
+              </button>
             </>
           )}
-        </nav>
 
+        </nav>
       </div>
     </header>
   );
 }
 
 export default Header;
-

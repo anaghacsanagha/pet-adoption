@@ -1,4 +1,5 @@
 
+import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import Header from "./Components/Header";
@@ -35,10 +36,10 @@ function ProtectedRoute({ children }) {
 }
 
 // Header and Footer Layout
-function MainLayout({ children }) {
+function MainLayout({ children, darkMode, setDarkMode }) {
   return (
     <>
-      <Header />
+      <Header darkMode={darkMode} setDarkMode={setDarkMode} />
       <main>{children}</main>
       <Footer />
     </>
@@ -47,21 +48,47 @@ function MainLayout({ children }) {
 
 // App Component
 function App() {
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("pawhavenTheme") === "dark"
+  );
+
+  useEffect(() => {
+    localStorage.setItem("pawhavenTheme", darkMode ? "dark" : "light");
+  }, [darkMode]);
+
   return (
-    <div className="pawhaven-app">
+    <div className={`pawhaven-app ${darkMode ? "dark-mode" : "light-mode"}`}>
+
       <Routes>
 
         {/* Public Pages */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <Landing darkMode={darkMode} setDarkMode={setDarkMode} />
+          }
+        />
+
+        <Route
+          path="/register"
+          element={
+            <Register darkMode={darkMode} setDarkMode={setDarkMode} />
+          }
+        />
+
+        <Route
+          path="/login"
+          element={
+            <Login darkMode={darkMode} setDarkMode={setDarkMode} />
+          }
+        />
 
         {/* Home */}
         <Route
           path="/home"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <Home />
               </MainLayout>
             </ProtectedRoute>
@@ -73,7 +100,7 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <Dashboard />
               </MainLayout>
             </ProtectedRoute>
@@ -85,19 +112,19 @@ function App() {
           path="/pets"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <Pets />
               </MainLayout>
             </ProtectedRoute>
           }
         />
 
-        {/* Pet Details - View More */}
+        {/* Pet Details */}
         <Route
           path="/pet/:id"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <PetDetails />
               </MainLayout>
             </ProtectedRoute>
@@ -109,7 +136,7 @@ function App() {
           path="/wishlist"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <Wishlist />
               </MainLayout>
             </ProtectedRoute>
@@ -121,7 +148,7 @@ function App() {
           path="/adopt/:id"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <AdoptionRequest />
               </MainLayout>
             </ProtectedRoute>
@@ -133,7 +160,7 @@ function App() {
           path="/my-adoptions"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <MyAdoptions />
               </MainLayout>
             </ProtectedRoute>
@@ -145,7 +172,7 @@ function App() {
           path="/care-feeding"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <CareFeeding />
               </MainLayout>
             </ProtectedRoute>
@@ -157,7 +184,7 @@ function App() {
           path="/adoption-terms"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <AdoptionTerms />
               </MainLayout>
             </ProtectedRoute>
@@ -169,7 +196,7 @@ function App() {
           path="/about"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <About />
               </MainLayout>
             </ProtectedRoute>
@@ -181,7 +208,7 @@ function App() {
           path="/contact"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <Contact />
               </MainLayout>
             </ProtectedRoute>
@@ -193,7 +220,7 @@ function App() {
           path="/profile"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <Profile />
               </MainLayout>
             </ProtectedRoute>
@@ -205,7 +232,7 @@ function App() {
           path="/vaccination-calendar"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <VaccinationCalendar />
               </MainLayout>
             </ProtectedRoute>
@@ -217,7 +244,7 @@ function App() {
           path="/add-pet"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <AddPet />
               </MainLayout>
             </ProtectedRoute>
@@ -229,7 +256,7 @@ function App() {
           path="/my-pets"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <MyPets />
               </MainLayout>
             </ProtectedRoute>
@@ -241,7 +268,7 @@ function App() {
           path="/edit-pet/:id"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <EditPet />
               </MainLayout>
             </ProtectedRoute>
@@ -253,7 +280,7 @@ function App() {
           path="/pet-documents"
           element={
             <ProtectedRoute>
-              <MainLayout>
+              <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <PetDocuments />
               </MainLayout>
             </ProtectedRoute>
@@ -261,10 +288,7 @@ function App() {
         />
 
         {/* Invalid Route */}
-        <Route
-          path="*"
-          element={<Navigate to="/" replace />}
-        />
+        <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>
     </div>
@@ -272,4 +296,3 @@ function App() {
 }
 
 export default App;
-

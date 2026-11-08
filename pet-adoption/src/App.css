@@ -3072,3 +3072,338 @@ select {
   }
 }
 
+
+
+
+/* ==========================================
+   PAWHAVEN - COMPLETE DARK / LIGHT MODE
+   Add this at the END of App.css
+========================================== */
+
+/* LIGHT MODE DEFAULT */
+
+.pawhaven-app {
+  --page-bg: #fffaf5;
+  --section-bg: #f8f3ed;
+  --card-bg: #ffffff;
+  --soft-bg: #f5eee7;
+  --text-color: #493b35;
+  --muted-text: #81736b;
+  --border-color: #eadfd5;
+  --input-bg: #ffffff;
+
+  min-height: 100vh;
+  background: var(--page-bg);
+  color: var(--text-color);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* DARK MODE COLORS */
+
+.pawhaven-app.dark-mode {
+  --page-bg: #191c1b;
+  --section-bg: #202523;
+  --card-bg: #282e2b;
+  --soft-bg: #303834;
+  --text-color: #f3eee8;
+  --muted-text: #c0b8ae;
+  --border-color: #454d48;
+  --input-bg: #303834;
+}
+
+/* THEME BUTTON */
+
+.theme-toggle-container {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 5%;
+  background: var(--page-bg);
+}
+
+.theme-toggle-btn {
+  padding: 9px 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 25px;
+  background: var(--card-bg);
+  color: var(--text-color);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.theme-toggle-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* MAIN BACKGROUND */
+
+.pawhaven-app.dark-mode,
+.pawhaven-app.dark-mode main {
+  background: var(--page-bg);
+  color: var(--text-color);
+}
+
+/* PAGE BACKGROUNDS */
+
+.pawhaven-app.dark-mode .landing-hero,
+.pawhaven-app.dark-mode .landing-intro,
+.pawhaven-app.dark-mode .landing-why,
+.pawhaven-app.dark-mode .landing-care,
+.pawhaven-app.dark-mode .pets-listing-section,
+.pawhaven-app.dark-mode .pet-details-page,
+.pawhaven-app.dark-mode .pet-not-found,
+.pawhaven-app.dark-mode .wishlist-page,
+.pawhaven-app.dark-mode .my-adoptions-page,
+.pawhaven-app.dark-mode .care-page,
+.pawhaven-app.dark-mode .adoption-terms-page,
+.pawhaven-app.dark-mode .about-page,
+.pawhaven-app.dark-mode .contact-page,
+.pawhaven-app.dark-mode .profile-page,
+.pawhaven-app.dark-mode .adoption-request-page,
+.pawhaven-app.dark-mode .home-categories,
+.pawhaven-app.dark-mode .home-process {
+  background: var(--page-bg);
+  color: var(--text-color);
+}
+
+/* COLOURED SECTIONS */
+
+.pawhaven-app.dark-mode .pets-page-hero,
+.pawhaven-app.dark-mode .home-hero,
+.pawhaven-app.dark-mode .landing-process,
+.pawhaven-app.dark-mode .auth-section,
+.pawhaven-app.dark-mode .home-care-section,
+.pawhaven-app.dark-mode .about-mission-section {
+  background: var(--section-bg);
+  color: var(--text-color);
+}
+
+/* CARDS */
+
+.pawhaven-app.dark-mode .pet-card,
+.pawhaven-app.dark-mode .landing-pet-card,
+.pawhaven-app.dark-mode .home-category-card,
+.pawhaven-app.dark-mode .process-card,
+.pawhaven-app.dark-mode .intro-highlight,
+.pawhaven-app.dark-mode .home-process-card,
+.pawhaven-app.dark-mode .care-tip-card,
+.pawhaven-app.dark-mode .feeding-card,
+.pawhaven-app.dark-mode .terms-card,
+.pawhaven-app.dark-mode .about-feature-card,
+.pawhaven-app.dark-mode .wishlist-card,
+.pawhaven-app.dark-mode .my-adoption-card,
+.pawhaven-app.dark-mode .profile-card,
+.pawhaven-app.dark-mode .adoption-form,
+.pawhaven-app.dark-mode .adoption-form-wrapper,
+.pawhaven-app.dark-mode .contact-form,
+.pawhaven-app.dark-mode .auth-container {
+  background: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* INNER CONTENT */
+
+.pawhaven-app.dark-mode .pet-card-content,
+.pawhaven-app.dark-mode .landing-pet-content,
+.pawhaven-app.dark-mode .pet-details-info div,
+.pawhaven-app.dark-mode .adoption-pet-summary,
+.pawhaven-app.dark-mode .pet-filter,
+.pawhaven-app.dark-mode .pets-empty,
+.pawhaven-app.dark-mode .care-note,
+.pawhaven-app.dark-mode .terms-note,
+.pawhaven-app.dark-mode .about-cta,
+.pawhaven-app.dark-mode .home-image-note,
+.pawhaven-app.dark-mode .hero-image-note {
+  background: var(--soft-bg);
+  color: var(--text-color);
+}
+
+/* ALL IMPORTANT TEXT */
+
+.pawhaven-app.dark-mode h1,
+.pawhaven-app.dark-mode h2,
+.pawhaven-app.dark-mode h3,
+.pawhaven-app.dark-mode h4,
+.pawhaven-app.dark-mode h5,
+.pawhaven-app.dark-mode h6,
+.pawhaven-app.dark-mode p,
+.pawhaven-app.dark-mode label,
+.pawhaven-app.dark-mode strong,
+.pawhaven-app.dark-mode .pet-card-info,
+.pawhaven-app.dark-mode .pet-breed,
+.pawhaven-app.dark-mode .pet-details-about,
+.pawhaven-app.dark-mode .pet-details-personality p,
+.pawhaven-app.dark-mode .landing-pet-meta,
+.pawhaven-app.dark-mode .why-content li,
+.pawhaven-app.dark-mode .care-tip-card p,
+.pawhaven-app.dark-mode .terms-card p,
+.pawhaven-app.dark-mode .about-description,
+.pawhaven-app.dark-mode .my-adoption-content p,
+.pawhaven-app.dark-mode .profile-details span,
+.pawhaven-app.dark-mode .auth-description,
+.pawhaven-app.dark-mode .section-title p {
+  color: var(--text-color);
+}
+
+/* MUTED TEXT */
+
+.pawhaven-app.dark-mode .pet-card-heading span,
+.pawhaven-app.dark-mode .pet-details-info span,
+.pawhaven-app.dark-mode .pet-details-breed,
+.pawhaven-app.dark-mode .pet-search button,
+.pawhaven-app.dark-mode .pets-results-heading p,
+.pawhaven-app.dark-mode .wishlist-top p,
+.pawhaven-app.dark-mode .wishlist-empty p,
+.pawhaven-app.dark-mode .auth-switch,
+.pawhaven-app.dark-mode .auth-description,
+.pawhaven-app.dark-mode .section-title p,
+.pawhaven-app.dark-mode .profile-email {
+  color: var(--muted-text);
+}
+
+/* INPUTS AND SELECTS */
+
+.pawhaven-app.dark-mode input,
+.pawhaven-app.dark-mode textarea,
+.pawhaven-app.dark-mode select,
+.pawhaven-app.dark-mode .filter-group select,
+.pawhaven-app.dark-mode .form-group input,
+.pawhaven-app.dark-mode .form-group textarea,
+.pawhaven-app.dark-mode .form-group select,
+.pawhaven-app.dark-mode .auth-input-group input,
+.pawhaven-app.dark-mode .contact-form input,
+.pawhaven-app.dark-mode .contact-form textarea,
+.pawhaven-app.dark-mode .profile-form input {
+  background: var(--input-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.pawhaven-app.dark-mode input::placeholder,
+.pawhaven-app.dark-mode textarea::placeholder {
+  color: var(--muted-text);
+}
+
+/* SEARCH */
+
+.pawhaven-app.dark-mode .pet-search {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.pawhaven-app.dark-mode .pet-search input {
+  background: transparent;
+  color: var(--text-color);
+}
+
+/* HEADER */
+
+.pawhaven-app.dark-mode .site-header {
+  background: #252c28;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.25);
+}
+
+.pawhaven-app.dark-mode .brand-logo,
+.pawhaven-app.dark-mode .header-nav a,
+.pawhaven-app.dark-mode .menu-toggle {
+  color: #f3eee8;
+}
+
+.pawhaven-app.dark-mode .header-nav a:hover,
+.pawhaven-app.dark-mode .header-nav a.active {
+  color: #b7c9b1;
+}
+
+.pawhaven-app.dark-mode .header-nav {
+  background: #252c28;
+}
+
+/* FOOTER */
+
+.pawhaven-app.dark-mode .site-footer {
+  background: #252c28;
+  color: #f3eee8;
+  border-top: 1px solid var(--border-color);
+}
+
+.pawhaven-app.dark-mode .footer-about h2,
+.pawhaven-app.dark-mode .footer-container h3,
+.pawhaven-app.dark-mode .footer-about p,
+.pawhaven-app.dark-mode .footer-contact p,
+.pawhaven-app.dark-mode .footer-links a,
+.pawhaven-app.dark-mode .footer-bottom p {
+  color: #f3eee8;
+}
+
+.pawhaven-app.dark-mode .footer-bottom {
+  border-top-color: var(--border-color);
+}
+
+/* BUTTONS */
+
+.pawhaven-app.dark-mode .pet-view-btn,
+.pawhaven-app.dark-mode .secondary-btn,
+.pawhaven-app.dark-mode .home-secondary-btn,
+.pawhaven-app.dark-mode .pet-wishlist-btn,
+.pawhaven-app.dark-mode .filter-reset,
+.pawhaven-app.dark-mode .pets-reset-btn {
+  background: #39443d;
+  color: #f3eee8;
+  border-color: var(--border-color);
+}
+
+/* MESSAGES AND NOTIFICATIONS */
+
+.pawhaven-app.dark-mode .message,
+.pawhaven-app.dark-mode .chat-message,
+.pawhaven-app.dark-mode .message-card,
+.pawhaven-app.dark-mode .conversation,
+.pawhaven-app.dark-mode .notification,
+.pawhaven-app.dark-mode .alert-box {
+  background: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+/* TABLES */
+
+.pawhaven-app.dark-mode table,
+.pawhaven-app.dark-mode th,
+.pawhaven-app.dark-mode td {
+  background: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+/* SMOOTH THEME TRANSITION */
+
+.pawhaven-app,
+.pawhaven-app main,
+.pawhaven-app section,
+.pawhaven-app article,
+.pawhaven-app .site-header,
+.pawhaven-app .site-footer {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.theme-toggle-btn {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: #789477;
+  color: white;
+  font-size: 19px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.1);
+  background: #607d5f;
+}
