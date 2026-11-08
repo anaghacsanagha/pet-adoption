@@ -3,13 +3,14 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../Components/Header";
 import Footer from "../Components/Footer";
+import { showSuccess } from "../utils/sweetAlert";
 
 function Login() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
 
   const [error, setError] = useState("");
@@ -18,7 +19,7 @@ function Login() {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
     setError("");
   };
@@ -30,7 +31,6 @@ function Login() {
       setLoading(true);
       setError("");
 
-      // Fetch registered users from JSON Server
       const response = await fetch("http://localhost:3000/users");
 
       if (!response.ok) {
@@ -39,7 +39,6 @@ function Login() {
 
       const users = await response.json();
 
-      // Find matching user
       const user = users.find(
         (item) =>
           item.email.toLowerCase() ===
@@ -56,19 +55,20 @@ function Login() {
         id: user.id,
         name: user.name,
         email: user.email,
-        phone: user.phone
+        phone: user.phone,
       };
 
-      // Store only logged-in user session in localStorage
       localStorage.setItem(
         "pawhavenUser",
         JSON.stringify(loggedInUser)
       );
 
-      alert(`Welcome back, ${user.name}!`);
+      await showSuccess(
+        `Welcome back, ${user.name}!`,
+        "You have successfully logged in."
+      );
 
       navigate("/home");
-
     } catch (err) {
       console.error(err);
       setError("Unable to connect to server. Please start the server.");
@@ -83,7 +83,6 @@ function Login() {
 
       <section className="auth-section">
         <div className="auth-container login-container">
-
           <div className="auth-image">
             <img
               src="https://images.unsplash.com/photo-1551717743-49959800b1f6?w=1000"
@@ -105,7 +104,6 @@ function Login() {
             </p>
 
             <form onSubmit={handleSubmit} className="auth-form">
-
               <div className="auth-input-group">
                 <label>Email Address</label>
                 <input
@@ -139,14 +137,12 @@ function Login() {
               >
                 {loading ? "Logging in..." : "Login →"}
               </button>
-
             </form>
 
             <p className="auth-switch">
               Don't have an account?
               <Link to="/register"> Register here</Link>
             </p>
-
           </div>
         </div>
       </section>

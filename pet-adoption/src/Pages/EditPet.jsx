@@ -1,11 +1,16 @@
 
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import {
+  showConfirm,
+  showSuccess,
+  showError,
+} from "../utils/sweetAlert";
 
 const API = "http://localhost:3000";
 
-function EditPet() {
-  const { id } = useParams();
+function EditPet({ petId, onBack, onSaved }) {
+  const id = petId;
   const navigate = useNavigate();
 
   const user = JSON.parse(
@@ -71,23 +76,29 @@ function EditPet() {
       const reader = new FileReader();
 
       reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(
-        new Error(`Unable to read ${file.name}`)
-      );
+      reader.onerror = () =>
+        reject(new Error(`Unable to read ${file.name}`));
 
       reader.readAsDataURL(file);
     });
 
-  // Load pet and documents
+  // Load pet details and documents
   useEffect(() => {
     if (!userId) {
       navigate("/login");
       return;
     }
 
+    if (!id) {
+      setError("Pet ID is missing.");
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError("");
 
         const petResponse = await fetch(`${API}/pets/${id}`);
 
@@ -109,7 +120,8 @@ function EditPet() {
           gender: pet.gender || "Male",
           location: pet.location || "",
           vaccinated:
-            pet.vaccinated === true || pet.vaccinated === "Yes"
+            pet.vaccinated === true ||
+            pet.vaccinated === "Yes"
               ? "Yes"
               : "No",
           personality: Array.isArray(pet.personality)
@@ -120,7 +132,9 @@ function EditPet() {
 
         setImage(pet.image || "");
 
-        const docResponse = await fetch(`${API}/petDocuments`);
+        const docResponse = await fetch(
+          `${API}/petDocuments`
+        );
 
         if (!docResponse.ok) {
           throw new Error("Unable to load pet documents.");
@@ -155,7 +169,7 @@ function EditPet() {
     }));
   };
 
-  // Pet image
+  // Pet image selection
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
 
@@ -165,13 +179,19 @@ function EditPet() {
     setSuccess("");
 
     if (!file.type.startsWith("image/")) {
-      setError("Please select a valid pet image.");
+      await showWarning(
+        "Invalid Image",
+        "Please select a valid pet image."
+      );
       e.target.value = "";
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      setError("Pet image size should be below 2 MB.");
+      await showWarning(
+        "Image Too Large",
+        "Pet image size should be below 2 MB."
+      );
       e.target.value = "";
       return;
     }
@@ -181,11 +201,12 @@ function EditPet() {
       setNewImage(imageData);
     } catch (err) {
       setError(err.message);
+      await showError("Image Error", err.message);
     }
   };
 
   // Document selection
-  const handleDocumentChange = (e) => {
+  const handleDocumentChange = async (e) => {
     const { name, files } = e.target;
     const file = files[0];
 
@@ -202,13 +223,19 @@ function EditPet() {
     ];
 
     if (!allowedTypes.includes(file.type)) {
-      setError("Only PDF, JPG, PNG and WEBP files are allowed.");
+      await showWarning(
+        "Invalid File",
+        "Only PDF, JPG, PNG and WEBP files are allowed."
+      );
       e.target.value = "";
       return;
     }
 
     if (file.size > 3 * 1024 * 1024) {
-      setError("Each document should be below 3 MB.");
+      await showWarning(
+        "File Too Large",
+        "Each document should be below 3 MB."
+      );
       e.target.value = "";
       return;
     }
@@ -221,17 +248,37 @@ function EditPet() {
 
   // Delete existing document
   const deleteDocument = async (documentId) => {
-    if (!window.confirm("Are you sure you want to delete this document?")) {
-      return;
-    }
+    const result = await showConfirm(
+      "Delete Document?",
+      "Are you sure you want to delete this document?"
+    );
+
+    if (!result.isConfirmed) return;
 
     try {
       const response = await fetch(
+        `${API}/petDocuments/${documentId}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Document not found.");
+      }
+
+      const document = await response.json();
+
+      if (
+        String(document.ownerId) !== String(userId) ||
+        String(document.petId) !== String(id)
+      ) {
+        throw new Error("You cannot delete this document.");
+      }
+
+      const deleteResponse = await fetch(
         `${API}/petDocuments/${documentId}`,
         { method: "DELETE" }
       );
 
-      if (!response.ok) {
+      if (!deleteResponse.ok) {
         throw new Error("Document deletion failed.");
       }
 
@@ -241,14 +288,20 @@ function EditPet() {
         )
       );
 
-      setSuccess("Document deleted successfully.");
+      setSuccess("Document deleted successfully! 🐾");
       setError("");
+
+      await showSuccess(
+        "Document Deleted!",
+        "The document has been deleted successfully."
+      );
     } catch (err) {
       setError(err.message);
+      await showError("Delete Failed", err.message);
     }
   };
 
-  // Save pet and upload documents
+  // Save pet details and documents
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -266,6 +319,10 @@ function EditPet() {
       Number(formData.age) < 0
     ) {
       setError("Please enter a valid pet age.");
+      await showWarning(
+        "Invalid Age",
+        "Please enter a valid pet age."
+      );
       return;
     }
 
@@ -298,7 +355,7 @@ function EditPet() {
         image: newImage || image,
       };
 
-      // Update pet first
+      // Update pet
       const updateResponse = await fetch(`${API}/pets/${id}`, {
         method: "PUT",
         headers: {
@@ -325,6 +382,7 @@ function EditPet() {
 
           const documentData = {
             petId: existingPet.id,
+            petName: updatedPet.name,
             ownerId: userId,
             documentType,
             fileName: file.name,
@@ -344,21 +402,27 @@ function EditPet() {
           );
 
           if (!documentResponse.ok) {
-            const responseText = await documentResponse.text();
+            const responseText =
+              await documentResponse.text();
 
             throw new Error(
               `${file.name}: HTTP ${documentResponse.status} ${responseText}`
             );
           }
 
-          const savedDocument = await documentResponse.json();
+          const savedDocument =
+            await documentResponse.json();
 
           setExistingDocuments((prev) => [
             ...prev,
             savedDocument,
           ]);
         } catch (uploadError) {
-          console.error("Document upload failed:", uploadError);
+          console.error(
+            "Document upload failed:",
+            uploadError
+          );
+
           failedUploads.push(uploadError.message);
         }
       }
@@ -371,27 +435,42 @@ function EditPet() {
       });
 
       if (failedUploads.length > 0) {
-        setError(
-          "Pet details updated, but these documents failed to upload: " +
-          failedUploads.join(" | ")
+        const message =
+          "Pet details updated, but some documents failed to upload: " +
+          failedUploads.join(" | ");
+
+        setError(message);
+
+        await showWarning(
+          "Partially Updated",
+          message
         );
+
         return;
       }
 
-      setSuccess(
+      const successMessage =
         selectedDocuments.length > 0
           ? "Pet details and documents updated successfully! 🐾"
-          : "Pet details updated successfully! 🐾"
+          : "Pet details updated successfully! 🐾";
+
+      setSuccess(successMessage);
+
+      await showSuccess(
+        "Pet Updated Successfully! 🐾",
+        successMessage
       );
 
-      // Allow user to see the success message before leaving
-      setTimeout(() => {
-        navigate("/my-pets");
-      }, 1200);
-
+      onSaved();
     } catch (err) {
       console.error("Edit Pet Error:", err);
+
       setError(err.message || "Unable to update pet.");
+
+      await showError(
+        "Update Failed",
+        err.message || "Unable to update pet."
+      );
     } finally {
       setSaving(false);
     }
@@ -425,10 +504,22 @@ function EditPet() {
 
   if (error && !formData.name) {
     return (
-      <div style={{ textAlign: "center", padding: "50px" }}>
-        <h2>{error}</h2>
-        <button onClick={() => navigate("/my-pets")}>
-          Back to My Pets
+      <div style={{ textAlign: "center", padding: "40px" }}>
+        <h2 style={{ color: "#765846" }}>{error}</h2>
+
+        <button
+          type="button"
+          onClick={onBack}
+          style={{
+            padding: "12px 20px",
+            background: "#765846",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+          }}
+        >
+          ← Back to My Adoption Posts
         </button>
       </div>
     );
@@ -437,9 +528,9 @@ function EditPet() {
   return (
     <div
       style={{
-        background: "#FFF8F3",
-        minHeight: "100vh",
-        padding: "35px 20px",
+        width: "100%",
+        padding: "10px 0 30px",
+        boxSizing: "border-box",
       }}
     >
       <div
@@ -447,15 +538,16 @@ function EditPet() {
           maxWidth: "750px",
           margin: "auto",
           background: "#fff",
-          padding: "35px",
+          padding: "30px",
           borderRadius: "15px",
           boxShadow: "0 5px 25px rgba(120,85,65,0.07)",
           border: "1px solid #F1E5DD",
+          boxSizing: "border-box",
         }}
       >
         <button
           type="button"
-          onClick={() => navigate("/my-pets")}
+          onClick={onBack}
           style={{
             border: "none",
             background: "#F3E5DC",
@@ -467,20 +559,33 @@ function EditPet() {
             fontWeight: "600",
           }}
         >
-          ← Back to My Pets
+          ← Back to My Adoption Posts
         </button>
 
-        <h1 style={{ textAlign: "center", color: "#765846" }}>
+        <h1
+          style={{
+            textAlign: "center",
+            color: "#765846",
+            fontSize: "27px",
+          }}
+        >
           Edit Pet Details 🐾
         </h1>
 
-        <p style={{ textAlign: "center", color: "#A18472", marginBottom: "30px" }}>
+        <p
+          style={{
+            textAlign: "center",
+            color: "#A18472",
+            marginBottom: "30px",
+          }}
+        >
           Update your pet's information and documents.
         </p>
 
         <form onSubmit={handleSubmit}>
           <label style={labelStyle}>
             Pet Image (Optional)
+
             <input
               type="file"
               accept="image/*"
@@ -505,6 +610,7 @@ function EditPet() {
 
           <label style={labelStyle}>
             Pet Name *
+
             <input
               name="name"
               value={formData.name}
@@ -516,6 +622,7 @@ function EditPet() {
 
           <label style={labelStyle}>
             Pet Type *
+
             <input
               name="type"
               value={formData.type}
@@ -527,6 +634,7 @@ function EditPet() {
 
           <label style={labelStyle}>
             Breed *
+
             <input
               name="breed"
               value={formData.breed}
@@ -538,6 +646,7 @@ function EditPet() {
 
           <label style={labelStyle}>
             Age *
+
             <input
               type="number"
               name="age"
@@ -552,6 +661,7 @@ function EditPet() {
 
           <label style={labelStyle}>
             Gender *
+
             <select
               name="gender"
               value={formData.gender}
@@ -565,6 +675,7 @@ function EditPet() {
 
           <label style={labelStyle}>
             Location *
+
             <input
               name="location"
               value={formData.location}
@@ -576,6 +687,7 @@ function EditPet() {
 
           <label style={labelStyle}>
             Vaccination Status *
+
             <select
               name="vaccinated"
               value={formData.vaccinated}
@@ -589,16 +701,19 @@ function EditPet() {
 
           <label style={labelStyle}>
             Personality
+
             <input
               name="personality"
               value={formData.personality}
               onChange={handleChange}
               style={inputStyle}
+              placeholder="Friendly, Playful, Active"
             />
           </label>
 
           <label style={labelStyle}>
             About Your Pet *
+
             <textarea
               name="about"
               value={formData.about}
@@ -624,6 +739,7 @@ function EditPet() {
             </h2>
 
             <p style={{ color: "#A18472", fontSize: "14px" }}>
+              Documents belonging to {formData.name || "your pet"}.
               View existing documents or upload new ones.
             </p>
 
@@ -633,7 +749,10 @@ function EditPet() {
               );
 
               return (
-                <div key={field.name} style={{ marginBottom: "22px" }}>
+                <div
+                  key={field.name}
+                  style={{ marginBottom: "22px" }}
+                >
                   <label style={labelStyle}>
                     {field.icon} {field.label} (Optional)
                   </label>
@@ -657,7 +776,10 @@ function EditPet() {
                         download={doc.fileName}
                         target="_blank"
                         rel="noreferrer"
-                        style={{ color: "#2e7d32", marginRight: "15px" }}
+                        style={{
+                          color: "#2e7d32",
+                          marginRight: "15px",
+                        }}
                       >
                         View / Download
                       </a>
@@ -700,34 +822,46 @@ function EditPet() {
           </div>
 
           {error && (
-            <p style={{
-              color: "#c0392b",
-              background: "#fff0ed",
-              padding: "12px",
-              borderRadius: "8px",
-              overflowWrap: "anywhere",
-            }}>
+            <p
+              style={{
+                color: "#c0392b",
+                background: "#fff0ed",
+                padding: "12px",
+                borderRadius: "8px",
+                overflowWrap: "anywhere",
+              }}
+            >
               {error}
             </p>
           )}
 
           {success && (
-            <p style={{
-              color: "#24743a",
-              background: "#edf8ef",
-              padding: "12px",
-              borderRadius: "8px",
-            }}>
+            <p
+              style={{
+                color: "#24743a",
+                background: "#edf8ef",
+                padding: "12px",
+                borderRadius: "8px",
+              }}
+            >
               {success}
             </p>
           )}
 
-          <div style={{ display: "flex", gap: "12px" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+              flexWrap: "wrap",
+              marginTop: "20px",
+            }}
+          >
             <button
               type="submit"
               disabled={saving}
               style={{
                 flex: 1,
+                minWidth: "130px",
                 padding: "13px",
                 background: "#2e7d32",
                 color: "white",
@@ -741,9 +875,11 @@ function EditPet() {
 
             <button
               type="button"
-              onClick={() => navigate("/my-pets")}
+              onClick={onBack}
+              disabled={saving}
               style={{
                 flex: 1,
+                minWidth: "130px",
                 padding: "13px",
                 background: "#777",
                 color: "white",

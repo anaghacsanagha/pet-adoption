@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 
 import AddPet from "./AddPet";
 import MyPets from "./MyPets";
+import EditPet from "./EditPet";
 import PetDocuments from "./PetDocuments";
 import VaccinationCalendar from "./VaccinationCalendar";
 import MyAdoptions from "./MyAdoptions";
+import AdoptionRequests from "../Components/AdoptionRequests";
 import Wishlist from "./Wishlist";
 import Profile from "./Profile";
 
@@ -19,10 +21,12 @@ function Dashboard() {
 
   const [activeMenu, setActiveMenu] = useState("My Adoption Posts");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [editingPetId, setEditingPetId] = useState(null);
 
   const menuItems = [
     { name: "Add Your Pet", icon: "➕" },
     { name: "My Adoption Posts", icon: "🐾" },
+    { name: "Adoption Requests", icon: "📩" },
     { name: "Pet Documents", icon: "📄" },
     { name: "Vaccination Calendar", icon: "📅" },
     { name: "My Adoptions", icon: "🏡" },
@@ -32,16 +36,42 @@ function Dashboard() {
 
   const handleMenuClick = (name) => {
     setActiveMenu(name);
+    setEditingPetId(null);
     setSidebarOpen(false);
   };
 
+  const handleEditPet = (id) => {
+    setEditingPetId(id);
+  };
+
+  const handleBackFromEdit = () => {
+    setEditingPetId(null);
+  };
+
+  const handleEditSuccess = () => {
+    setEditingPetId(null);
+  };
+
   const renderContent = () => {
+    if (editingPetId !== null) {
+      return (
+        <EditPet
+          petId={editingPetId}
+          onBack={handleBackFromEdit}
+          onSaved={handleEditSuccess}
+        />
+      );
+    }
+
     switch (activeMenu) {
       case "Add Your Pet":
         return <AddPet />;
 
       case "My Adoption Posts":
-        return <MyPets />;
+        return <MyPets onEdit={handleEditPet} />;
+
+      case "Adoption Requests":
+        return <AdoptionRequests />;
 
       case "Pet Documents":
         return <PetDocuments />;
@@ -59,7 +89,7 @@ function Dashboard() {
         return <Profile />;
 
       default:
-        return <MyPets />;
+        return <MyPets onEdit={handleEditPet} />;
     }
   };
 
@@ -79,7 +109,10 @@ function Dashboard() {
         }}
       >
         <h2 style={styles.sidebarTitle}>🐾 PawHaven</h2>
-        <p style={styles.sidebarSubtitle}>User Dashboard</p>
+
+        <p style={styles.sidebarSubtitle}>
+          User Dashboard
+        </p>
 
         <div style={styles.menuList}>
           {menuItems.map((item) => (
@@ -119,7 +152,12 @@ function Dashboard() {
 
       <main style={styles.mainContent}>
         <div style={styles.topBar}>
-          <h1 style={styles.heading}>{activeMenu}</h1>
+          <h1 style={styles.heading}>
+            {editingPetId !== null
+              ? "Edit Pet Details"
+              : activeMenu}
+          </h1>
+
           <p style={styles.welcome}>
             Welcome back, {user?.name || "Pet Lover"}! 🐾
           </p>

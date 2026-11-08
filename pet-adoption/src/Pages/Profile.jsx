@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Container, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { showSuccess } from "../utils/sweetAlert";
 
 function Profile() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ function Profile() {
     });
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
 
     const updatedUser = {
@@ -49,8 +50,12 @@ function Profile() {
       JSON.stringify(updatedUsers)
     );
 
-    alert("Profile updated successfully!");
     setEditMode(false);
+
+    await showSuccess(
+      "Profile Updated!",
+      "Your profile details have been updated successfully."
+    );
   };
 
   const handleLogout = () => {

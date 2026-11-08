@@ -2,6 +2,12 @@
 import React, { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import {
+  showConfirm,
+  showSuccess,
+  showError,
+  showWarning,
+} from "../utils/sweetAlert";
 
 function VaccinationCalendar() {
   const user = JSON.parse(localStorage.getItem("pawhavenUser"));
@@ -14,7 +20,7 @@ function VaccinationCalendar() {
     petName: "",
     vaccineName: "",
     time: "",
-    notes: ""
+    notes: "",
   });
 
   const formatDate = (date) => {
@@ -36,7 +42,9 @@ function VaccinationCalendar() {
       })
       .then((data) => {
         setAppointments(
-          data.filter((item) => String(item.userId) === String(user.id))
+          data.filter(
+            (item) => String(item.userId) === String(user.id)
+          )
         );
       })
       .catch((error) => console.error(error));
@@ -45,7 +53,7 @@ function VaccinationCalendar() {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -53,7 +61,7 @@ function VaccinationCalendar() {
     e.preventDefault();
 
     if (!user?.id) {
-      alert("Please login first");
+      await showWarning("Please login first.");
       return;
     }
 
@@ -66,7 +74,7 @@ function VaccinationCalendar() {
       date: selectedDateString,
       time: formData.time,
       notes: formData.notes,
-      status: "Scheduled"
+      status: "Scheduled",
     };
 
     try {
@@ -75,13 +83,15 @@ function VaccinationCalendar() {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(newAppointment)
+          body: JSON.stringify(newAppointment),
         }
       );
 
-      if (!response.ok) throw new Error("Could not save appointment");
+      if (!response.ok) {
+        throw new Error("Could not save appointment");
+      }
 
       const savedAppointment = await response.json();
 
@@ -91,19 +101,31 @@ function VaccinationCalendar() {
         petName: "",
         vaccineName: "",
         time: "",
-        notes: ""
+        notes: "",
       });
 
-      alert("Vaccination appointment scheduled!");
+      await showSuccess(
+        "Appointment Scheduled!",
+        "Vaccination appointment scheduled successfully."
+      );
     } catch (error) {
-      alert("Unable to schedule appointment. Check your server.");
+      console.error(error);
+      await showError(
+        "Unable to Schedule",
+        "Unable to schedule appointment. Check your server."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const cancelAppointment = async (id) => {
-    if (!window.confirm("Cancel this appointment?")) return;
+    const result = await showConfirm(
+      "Cancel Appointment?",
+      "Are you sure you want to cancel this appointment?"
+    );
+
+    if (!result.isConfirmed) return;
 
     try {
       const response = await fetch(
@@ -111,13 +133,24 @@ function VaccinationCalendar() {
         { method: "DELETE" }
       );
 
-      if (!response.ok) throw new Error("Unable to cancel");
+      if (!response.ok) {
+        throw new Error("Unable to cancel");
+      }
 
       setAppointments((prev) =>
-        prev.filter((item) => item.id !== id)
+        prev.filter((item) => String(item.id) !== String(id))
+      );
+
+      await showSuccess(
+        "Appointment Cancelled",
+        "Your appointment has been cancelled."
       );
     } catch (error) {
-      alert("Could not cancel appointment");
+      console.error(error);
+      await showError(
+        "Cancellation Failed",
+        "Could not cancel appointment."
+      );
     }
   };
 
@@ -282,12 +315,16 @@ function VaccinationCalendar() {
               value={selectedDateString}
               min={formatDate(new Date())}
               onChange={(e) => {
+                if (!e.target.value) return;
+
                 const [year, month, day] = e.target.value.split("-");
-                setSelectedDate(new Date(
-                  Number(year),
-                  Number(month) - 1,
-                  Number(day)
-                ));
+                setSelectedDate(
+                  new Date(
+                    Number(year),
+                    Number(month) - 1,
+                    Number(day)
+                  )
+                );
               }}
               required
             />
@@ -323,7 +360,10 @@ function VaccinationCalendar() {
         </div>
       </div>
 
-      <div className="vaccination-card mt-4" style={{ maxWidth: 1100, margin: "25px auto" }}>
+      <div
+        className="vaccination-card mt-4"
+        style={{ maxWidth: 1100, margin: "25px auto" }}
+      >
         <h4>Upcoming Appointments</h4>
 
         {upcomingAppointments.length === 0 ? (
@@ -332,7 +372,9 @@ function VaccinationCalendar() {
           upcomingAppointments.map((item) => (
             <div className="appointment-item" key={item.id}>
               <strong>{item.petName}</strong>
-              <p>{item.vaccineName} · {item.date} · {item.time}</p>
+              <p>
+                {item.vaccineName} · {item.date} · {item.time}
+              </p>
             </div>
           ))
         )}

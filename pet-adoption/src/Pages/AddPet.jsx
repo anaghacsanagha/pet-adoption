@@ -1,9 +1,20 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  showSuccess,
+  showError,
+  showWarning,
+} from "../utils/sweetAlert";
+
+const API = "http://localhost:3000";
 
 function AddPet() {
   const navigate = useNavigate();
+
+  const user = JSON.parse(
+    localStorage.getItem("pawhavenUser") || "null"
+  );
 
   const [formData, setFormData] = useState({
     name: "",
@@ -18,6 +29,8 @@ function AddPet() {
   });
 
   const [image, setImage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const [documents, setDocuments] = useState({
     vaccinationCertificate: null,
@@ -26,13 +39,43 @@ function AddPet() {
     otherDocument: null,
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const documentFields = [
+    {
+      name: "vaccinationCertificate",
+      label: "Vaccination Certificate",
+      icon: "💉",
+    },
+    {
+      name: "healthReport",
+      label: "Medical / Health Report",
+      icon: "🩺",
+    },
+    {
+      name: "petLicense",
+      label: "Pet License",
+      icon: "📋",
+    },
+    {
+      name: "otherDocument",
+      label: "Other Documents",
+      icon: "📄",
+    },
+  ];
 
-  const user = JSON.parse(
-    localStorage.getItem("pawhavenUser") || "null"
-  );
+  // Read file as Base64
+  const readFile = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
 
+      reader.onload = () => resolve(reader.result);
+
+      reader.onerror = () =>
+        reject(new Error(`Unable to read ${file.name}`));
+
+      reader.readAsDataURL(file);
+    });
+
+  // Handle form inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -42,16 +85,6 @@ function AddPet() {
     }));
   };
 
-  const readFile = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = reject;
-
-      reader.readAsDataURL(file);
-    });
-
   // Pet image upload
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -59,13 +92,13 @@ function AddPet() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setError("Please select a valid pet image.");
+      showWarning("Invalid Image", "Please select a valid pet image.");
       e.target.value = "";
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      setError("Pet image size should be below 2 MB.");
+      showWarning("Image Too Large", "Pet image size should be below 2 MB.");
       e.target.value = "";
       return;
     }
@@ -78,13 +111,13 @@ function AddPet() {
     };
 
     reader.onerror = () => {
-      setError("Unable to read the selected image.");
+      showError("Upload Failed", "Unable to read the selected image.");
     };
 
     reader.readAsDataURL(file);
   };
 
-  // Optional document upload
+  // Document upload selection
   const handleDocumentChange = (e) => {
     const { name, files } = e.target;
     const file = files[0];
@@ -99,13 +132,19 @@ function AddPet() {
     ];
 
     if (!allowedTypes.includes(file.type)) {
-      setError("Only PDF, JPG, PNG and WEBP documents are allowed.");
+      showWarning(
+        "Invalid Document",
+        "Only PDF, JPG, PNG and WEBP files are allowed."
+      );
       e.target.value = "";
       return;
     }
 
     if (file.size > 3 * 1024 * 1024) {
-      setError("Each document should be below 3 MB.");
+      showWarning(
+        "File Too Large",
+        "Each document should be below 3 MB."
+      );
       e.target.value = "";
       return;
     }
@@ -114,21 +153,41 @@ function AddPet() {
       ...previous,
       [name]: file,
     }));
-
-    setError("");
   };
 
-  // Submit pet
+  // Remove selected document
+  const removeDocument = (documentType) => {
+    setDocuments((previous) => ({
+      ...previous,
+      [documentType]: null,
+    }));
+
+    const input = document.querySelector(
+      `input[name="${documentType}"]`
+    );
+
+    if (input) {
+      input.value = "";
+    }
+  };
+
+  // Save pet and attached documents
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!user || !user.id) {
-      setError("Please login again to upload a pet.");
+    if (!user?.id) {
+      showWarning(
+        "Login Required",
+        "Please login again to upload a pet."
+      );
       return;
     }
 
     if (!image) {
-      setError("Please select a pet image.");
+      showWarning(
+        "Pet Image Required",
+        "Please select a pet image."
+      );
       return;
     }
 
@@ -137,7 +196,7 @@ function AddPet() {
       !Number.isFinite(Number(formData.age)) ||
       Number(formData.age) < 0
     ) {
-      setError("Please enter a valid pet age.");
+      showWarning("Invalid Age", "Please enter a valid pet age.");
       return;
     }
 
@@ -162,79 +221,99 @@ function AddPet() {
         uploadedBy: "user",
       };
 
-      // Save pet in pets collection
-      const petResponse = await fetch(
-        "http://localhost:3000/pets",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newPet),
-        }
-      );
+      // Save pet
+      const response = await fetch(`${API}/pets`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newPet),
+      });
 
-      // Show actual server error
-      if (!petResponse.ok) {
-        const errorText = await petResponse.text();
-
+      if (!response.ok) {
+        const errorText = await response.text();
         throw new Error(
-          `Pet upload failed (${petResponse.status}): ${errorText}`
+          `Pet upload failed (${response.status}): ${errorText}`
         );
       }
 
-      const savedPet = await petResponse.json();
+      const savedPet = await response.json();
 
-      // Save documents separately (only if selected)
-      const documentEntries = Object.entries(documents).filter(
+      // Upload selected documents
+      const selectedDocuments = Object.entries(documents).filter(
         ([, file]) => file !== null
       );
 
-      let documentUploadFailed = false;
+      const failedUploads = [];
 
-      for (const [documentType, file] of documentEntries) {
-        const document = {
-          petId: savedPet.id,
-          ownerId: user.id,
-          documentType,
-          fileName: file.name,
-          fileData: await readFile(file),
-          uploadedAt: new Date().toISOString(),
-        };
+      for (const [documentType, file] of selectedDocuments) {
+        try {
+          const fileData = await readFile(file);
 
-        const documentResponse = await fetch(
-          "http://localhost:3000/petDocuments",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(document),
-          }
-        );
+          const documentData = {
+            petId: savedPet.id,
+            petName: savedPet.name,
+            ownerId: user.id,
+            documentType,
+            fileName: file.name,
+            fileData,
+            uploadedAt: new Date().toISOString(),
+          };
 
-        if (!documentResponse.ok) {
-          const errorText = await documentResponse.text();
-
-          documentUploadFailed = true;
-
-          throw new Error(
-            `Pet added successfully, but document upload failed (${documentResponse.status}): ${errorText}`
+          const documentResponse = await fetch(
+            `${API}/petDocuments`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(documentData),
+            }
           );
+
+          if (!documentResponse.ok) {
+            const responseText = await documentResponse.text();
+
+            throw new Error(
+              `${file.name}: HTTP ${documentResponse.status} ${responseText}`
+            );
+          }
+        } catch (uploadError) {
+          console.error("Document upload failed:", uploadError);
+          failedUploads.push(uploadError.message);
         }
       }
 
-      alert(
-        documentUploadFailed
-          ? "Pet added, but some documents could not be uploaded."
-          : "Your pet has been added successfully! 🐾"
+      if (failedUploads.length > 0) {
+        await showWarning(
+          "Pet Added Successfully",
+          "Pet details were saved, but some documents could not be uploaded: " +
+            failedUploads.join(" | ")
+        );
+
+        navigate("/dashboard");
+        return;
+      }
+
+      await showSuccess(
+        "Pet Added Successfully! 🐾",
+        selectedDocuments.length > 0
+          ? "Your pet and documents have been uploaded successfully."
+          : "Your pet has been added successfully."
       );
 
       navigate("/dashboard");
-
     } catch (err) {
       console.error("Add Pet Error:", err);
-      setError(err.message || "Pet upload failed. Please try again.");
+
+      setError(
+        err.message || "Pet upload failed. Please try again."
+      );
+
+      showError(
+        "Upload Failed",
+        err.message || "Unable to add your pet."
+      );
     } finally {
       setLoading(false);
     }
@@ -257,29 +336,6 @@ function AddPet() {
     marginBottom: "17px",
     color: "#765846",
   };
-
-  const documentFields = [
-    {
-      name: "vaccinationCertificate",
-      label: "Vaccination Certificate",
-      icon: "💉",
-    },
-    {
-      name: "healthReport",
-      label: "Medical / Health Report",
-      icon: "🩺",
-    },
-    {
-      name: "petLicense",
-      label: "Pet License",
-      icon: "📋",
-    },
-    {
-      name: "otherDocument",
-      label: "Other Documents",
-      icon: "📄",
-    },
-  ];
 
   return (
     <div
@@ -341,6 +397,7 @@ function AddPet() {
           {/* Pet Image */}
           <label style={labelStyle}>
             Pet Image *
+
             <input
               type="file"
               accept="image/*"
@@ -367,6 +424,7 @@ function AddPet() {
           {/* Pet Name */}
           <label style={labelStyle}>
             Pet Name *
+
             <input
               name="name"
               value={formData.name}
@@ -380,6 +438,7 @@ function AddPet() {
           {/* Pet Type */}
           <label style={labelStyle}>
             Pet Type *
+
             <input
               name="type"
               value={formData.type}
@@ -393,6 +452,7 @@ function AddPet() {
           {/* Breed */}
           <label style={labelStyle}>
             Breed *
+
             <input
               name="breed"
               value={formData.breed}
@@ -403,9 +463,10 @@ function AddPet() {
             />
           </label>
 
-          {/* Age - Number Only */}
+          {/* Age */}
           <label style={labelStyle}>
             Age *
+
             <input
               type="number"
               name="age"
@@ -422,6 +483,7 @@ function AddPet() {
           {/* Gender */}
           <label style={labelStyle}>
             Gender *
+
             <select
               name="gender"
               value={formData.gender}
@@ -436,6 +498,7 @@ function AddPet() {
           {/* Location */}
           <label style={labelStyle}>
             Location *
+
             <input
               name="location"
               value={formData.location}
@@ -449,6 +512,7 @@ function AddPet() {
           {/* Vaccination */}
           <label style={labelStyle}>
             Vaccination Status *
+
             <select
               name="vaccinated"
               value={formData.vaccinated}
@@ -463,6 +527,7 @@ function AddPet() {
           {/* Personality */}
           <label style={labelStyle}>
             Personality
+
             <input
               name="personality"
               value={formData.personality}
@@ -475,6 +540,7 @@ function AddPet() {
           {/* About */}
           <label style={labelStyle}>
             About Your Pet *
+
             <textarea
               name="about"
               value={formData.about}
@@ -486,7 +552,7 @@ function AddPet() {
             />
           </label>
 
-          {/* Optional Documents */}
+          {/* Pet Documents */}
           <div
             style={{
               marginTop: "30px",
@@ -496,39 +562,102 @@ function AddPet() {
               borderRadius: "12px",
             }}
           >
-            <h2 style={{ color: "#765846", marginTop: 0 }}>
-              📁 Pet Documents (Optional)
+            <h2
+              style={{
+                color: "#765846",
+                marginTop: 0,
+                fontSize: "21px",
+              }}
+            >
+              📁 Pet Documents
             </h2>
 
-            <p style={{ color: "#A18472", fontSize: "14px" }}>
-              Upload certificates and reports if available.
-              Documents are optional. You can add your pet
-              without uploading any documents.
+            <p
+              style={{
+                color: "#A18472",
+                fontSize: "14px",
+                marginBottom: "22px",
+              }}
+            >
+              Upload certificates and other documents related to your pet.
+              All documents are optional.
             </p>
 
             {documentFields.map((field) => (
-              <label key={field.name} style={labelStyle}>
-                {field.icon} {field.label} (Optional)
+              <div
+                key={field.name}
+                style={{ marginBottom: "22px" }}
+              >
+                <label style={labelStyle}>
+                  {field.icon} {field.label} (Optional)
 
-                <input
-                  type="file"
-                  name={field.name}
-                  accept=".pdf,.jpg,.jpeg,.png,.webp"
-                  onChange={handleDocumentChange}
-                  style={inputStyle}
-                />
+                  <input
+                    type="file"
+                    name={field.name}
+                    accept=".pdf,.jpg,.jpeg,.png,.webp"
+                    onChange={handleDocumentChange}
+                    style={inputStyle}
+                  />
+                </label>
 
                 {documents[field.name] && (
-                  <small style={{ color: "#63866b" }}>
-                    Selected: {documents[field.name].name}
-                  </small>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "10px",
+                      background: "#F0F7F0",
+                      padding: "10px 12px",
+                      borderRadius: "8px",
+                      marginTop: "-10px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: "#63866b",
+                        fontSize: "13px",
+                        margin: 0,
+                        overflowWrap: "anywhere",
+                        flex: 1,
+                      }}
+                    >
+                      ✓ {documents[field.name].name}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => removeDocument(field.name)}
+                      title="Remove selected document"
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        border: "none",
+                        borderRadius: "50%",
+                        background: "#FCE4E4",
+                        color: "#C0392B",
+                        fontSize: "18px",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        flexShrink: 0,
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
                 )}
-              </label>
+              </div>
             ))}
 
-            <p style={{ fontSize: "12px", color: "#A18472" }}>
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#A18472",
+                marginBottom: 0,
+              }}
+            >
               Accepted formats: PDF, JPG, PNG, WEBP.
-              Maximum 3 MB per file.
+              Maximum 3 MB per document.
             </p>
           </div>
 

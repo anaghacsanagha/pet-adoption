@@ -2,76 +2,126 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SectionTitle from "../Components/SectionTitle";
+import {
+  showConfirm,
+  showSuccess,
+  showError,
+} from "../utils/sweetAlert";
+
+const API = "http://localhost:3000";
 
 function MyAdoptions() {
   const [adoptions, setAdoptions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const user = JSON.parse(localStorage.getItem("pawhavenUser"));
+  const user = JSON.parse(
+    localStorage.getItem("pawhavenUser") || "null"
+  );
 
-  // Fetch logged-in user's adoption requests
+  const fetchAdoptions = async () => {
+    if (!user) {
+      setAdoptions([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const [adoptionRes, petRes, userRes] = await Promise.all([
+        fetch(`${API}/adoptions`),
+        fetch(`${API}/pets`),
+        fetch(`${API}/users`),
+      ]);
+
+      if (!adoptionRes.ok || !petRes.ok || !userRes.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const adoptionData = await adoptionRes.json();
+      const petData = await petRes.json();
+      const userData = await userRes.json();
+
+      // Get only requests submitted by the logged-in user.
+      // Reverse database order: latest POST appears first.
+      const userAdoptions = adoptionData
+        .filter((item) => {
+          const applicantId = item.applicantId || item.userId;
+
+          return (
+            String(applicantId) === String(user.id) ||
+            item.applicantEmail === user.email ||
+            item.userEmail === user.email
+          );
+        })
+        .reverse();
+
+      const updatedAdoptions = userAdoptions.map((item) => {
+        const pet = petData.find(
+          (p) => String(p.id) === String(item.petId)
+        );
+
+        const ownerId =
+          item.ownerId || pet?.ownerId || pet?.userId;
+
+        const owner = userData.find(
+          (u) => String(u.id) === String(ownerId)
+        );
+
+        return {
+          ...item,
+          petImage: item.petImage || pet?.image,
+          petName: item.petName || pet?.name,
+          ownerName:
+            item.ownerName || pet?.ownerName || owner?.name,
+          ownerPhone: item.ownerPhone || owner?.phone,
+        };
+      });
+
+      setAdoptions(updatedAdoptions);
+    } catch (error) {
+      console.error("Error fetching adoptions:", error);
+      setAdoptions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchAdoptions = async () => {
-      if (!user?.email) {
-        setAdoptions([]);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          "http://localhost:3000/adoptions"
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch adoption requests");
-        }
-
-        const data = await response.json();
-
-        const userAdoptions = data.filter(
-          (item) => item.userEmail === user.email
-        );
-
-        setAdoptions(userAdoptions);
-      } catch (error) {
-        console.error("Error fetching adoptions:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAdoptions();
-  }, [user?.email]);
+  }, []);
 
-  // Cancel adoption request
   const cancelRequest = async (id) => {
-    const confirmCancel = window.confirm(
+    const result = await showConfirm(
+      "Cancel Adoption Request?",
       "Are you sure you want to cancel this request?"
     );
 
-    if (!confirmCancel) return;
+    if (!result.isConfirmed) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/adoptions/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`${API}/adoptions/${id}`, {
+        method: "DELETE",
+      });
 
       if (!response.ok) {
         throw new Error("Failed to cancel request");
       }
 
       setAdoptions((previous) =>
-        previous.filter((item) => item.id !== id)
+        previous.filter(
+          (item) => String(item.id) !== String(id)
+        )
       );
 
-      alert("Adoption request cancelled successfully!");
+      await showSuccess(
+        "Request cancelled successfully!"
+      );
     } catch (error) {
       console.error("Cancel error:", error);
-      alert("Unable to cancel request. Please try again.");
+      await showError(
+        "Unable to cancel request. Please try again."
+      );
     }
   };
 
@@ -94,45 +144,79 @@ function MyAdoptions() {
 
         {adoptions.length > 0 ? (
           <div className="my-adoptions-list">
-            {adoptions.map((item) => (
-              <div className="my-adoption-card" key={item.id}>
-                <img
-                  src={item.petImage}
-                  alt={item.petName}
-                />
+            {adoptions.map((item) => {
+              const status = item.status || "Pending";
+              const accepted = status === "Accepted";
 
-                <div className="my-adoption-content">
-                  <h3>{item.petName}</h3>
+              return (
+                <div className="my-adoption-card" key={item.id}>
+                  <img
+                    src={
+                      item.petImage ||
+                      "https://placehold.co/300x300?text=Pet"
+                    }
+                    alt={item.petName || "Pet"}
+                  />
 
-                  <p>
-                    Application Date: {item.date}
-                  </p>
+                  <div className="my-adoption-content">
+                    <h3>{item.petName}</h3>
 
-                  <p>
-                    Applicant: {item.formData?.fullName}
-                  </p>
+                    <p>
+                      Application Date: {item.date || "Not available"}
+                    </p>
 
-                  <div className="my-adoption-status-row">
-                    <span>Status</span>
+                    <p>
+                      Applicant:{" "}
+                      {item.applicantName ||
+                        item.userName ||
+                        item.formData?.fullName ||
+                        user?.name}
+                    </p>
 
-                    <strong
-                      className={`adoption-status ${item.status?.toLowerCase()}`}
-                    >
-                      {item.status}
-                    </strong>
+                    <div className="my-adoption-status-row">
+                      <span>Status</span>
+
+                      <strong
+                        className={`adoption-status ${status.toLowerCase()}`}
+                      >
+                        {status}
+                      </strong>
+                    </div>
+
+                    {accepted && (
+                      <div className="mt-3 p-3 rounded border">
+                        <h5>Pet Owner Contact</h5>
+
+                        <p className="mb-1">
+                          <strong>Name:</strong>{" "}
+                          {item.ownerName || "Pet Owner"}
+                        </p>
+
+                        <p className="mb-0">
+                          <strong>Phone:</strong>{" "}
+                          {item.ownerPhone ? (
+                            <a href={`tel:${item.ownerPhone}`}>
+                              {item.ownerPhone}
+                            </a>
+                          ) : (
+                            "Owner has not added a phone number"
+                          )}
+                        </p>
+                      </div>
+                    )}
+
+                    {status === "Pending" && (
+                      <button
+                        className="adoption-cancel-btn"
+                        onClick={() => cancelRequest(item.id)}
+                      >
+                        Cancel Request
+                      </button>
+                    )}
                   </div>
-
-                  {item.status === "Pending" && (
-                    <button
-                      className="adoption-cancel-btn"
-                      onClick={() => cancelRequest(item.id)}
-                    >
-                      Cancel Request
-                    </button>
-                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="my-adoptions-empty">

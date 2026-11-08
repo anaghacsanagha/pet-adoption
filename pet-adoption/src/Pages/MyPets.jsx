@@ -1,8 +1,14 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  showConfirm,
+  showSuccess,
+  showError,
+  showWarning,
+} from "../utils/sweetAlert";
 
-function MyPets() {
+function MyPets({ onEdit }) {
   const [myPets, setMyPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -19,42 +25,45 @@ function MyPets() {
 
   const userId = user?.id;
 
+  const fetchMyPets = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(
+        `http://localhost:3000/pets?ownerId=${encodeURIComponent(userId)}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch pets");
+      }
+
+      const data = await response.json();
+      setMyPets(data);
+    } catch (error) {
+      console.error(error);
+      setError("Unable to load your pets. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!userId) {
       navigate("/login");
       return;
     }
 
-    const fetchMyPets = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:3000/pets?ownerId=${encodeURIComponent(userId)}`
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch pets");
-        }
-
-        const data = await response.json();
-        setMyPets(data);
-      } catch (error) {
-        console.error(error);
-        setError("Unable to load your pets. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchMyPets();
-  }, [navigate, userId]);
+  }, [userId, navigate]);
 
-  // Delete only own pets
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
+    const confirmDelete = await showConfirm(
+      "Delete Pet?",
       "Are you sure you want to delete this pet?"
     );
 
-    if (!confirmDelete) return;
+    if (!confirmDelete.isConfirmed) return;
 
     try {
       const checkResponse = await fetch(
@@ -68,7 +77,10 @@ function MyPets() {
       const pet = await checkResponse.json();
 
       if (String(pet.ownerId) !== String(userId)) {
-        alert("You can only delete your own pets!");
+        await showWarning(
+          "Not Allowed",
+          "You can only delete your own pets!"
+        );
         return;
       }
 
@@ -87,10 +99,16 @@ function MyPets() {
         )
       );
 
-      alert("Pet deleted successfully!");
+      await showSuccess(
+        "Pet Deleted!",
+        "Pet deleted successfully."
+      );
     } catch (error) {
       console.error(error);
-      alert("Unable to delete pet. Please try again.");
+      await showError(
+        "Delete Failed",
+        "Unable to delete pet. Please try again."
+      );
     }
   };
 
@@ -112,9 +130,8 @@ function MyPets() {
 
   return (
     <div style={{ padding: "40px 5%", minHeight: "70vh" }}>
-
       <h2 style={{ color: "#5b3928", marginBottom: "10px" }}>
-        My Pets
+        My Adoption Posts
       </h2>
 
       <p style={{ color: "#777", marginBottom: "30px" }}>
@@ -186,7 +203,6 @@ function MyPets() {
                 <p>Location: {pet.location}</p>
                 <p>Status: {pet.status || "Available"}</p>
 
-                {/* VIEW MORE */}
                 <button
                   onClick={() => navigate(`/pet/${pet.id}`)}
                   style={{
@@ -204,15 +220,9 @@ function MyPets() {
                   View More
                 </button>
 
-                {/* EDIT AND DELETE */}
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "10px",
-                  }}
-                >
+                <div style={{ display: "flex", gap: "10px" }}>
                   <button
-                    onClick={() => navigate(`/edit-pet/${pet.id}`)}
+                    onClick={() => onEdit(pet.id)}
                     style={{
                       flex: 1,
                       padding: "10px",

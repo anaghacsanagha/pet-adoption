@@ -2,6 +2,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { pets as defaultPets } from "../data/pets";
+import {
+  showSuccess,
+  showWarning,
+  showError,
+} from "../utils/sweetAlert";
 import "./PetDetails.css";
 
 function PetDetails() {
@@ -12,6 +17,7 @@ function PetDetails() {
   const [uploadedReports, setUploadedReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [reportsLoading, setReportsLoading] = useState(true);
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
   // Fetch pet details
   useEffect(() => {
@@ -47,7 +53,30 @@ function PetDetails() {
     fetchPet();
   }, [id]);
 
-  // Fetch uploaded documents
+  // Check wishlist status
+  useEffect(() => {
+    const checkWishlist = () => {
+      const savedWishlist = JSON.parse(
+        localStorage.getItem("pawhavenWishlist") || "[]"
+      );
+
+      const exists = savedWishlist.some(
+        (item) => String(item.id ?? item) === String(id)
+      );
+
+      setIsWishlisted(exists);
+    };
+
+    checkWishlist();
+
+    window.addEventListener("wishlistUpdated", checkWishlist);
+
+    return () => {
+      window.removeEventListener("wishlistUpdated", checkWishlist);
+    };
+  }, [id]);
+
+  // Fetch uploaded health reports
   useEffect(() => {
     const fetchUploadedReports = async () => {
       try {
@@ -77,18 +106,25 @@ function PetDetails() {
   }, [id]);
 
   // Add to Wishlist
-  const addToWishlist = () => {
+  const addToWishlist = async () => {
     if (!pet) return;
 
-    const savedWishlist =
-      JSON.parse(localStorage.getItem("pawhavenWishlist")) || [];
+    const savedWishlist = JSON.parse(
+      localStorage.getItem("pawhavenWishlist") || "[]"
+    );
 
     const alreadyAdded = savedWishlist.some(
-      (item) => String(item.id) === String(pet.id)
+      (item) => String(item.id ?? item) === String(pet.id)
     );
 
     if (alreadyAdded) {
-      alert("This pet is already in your wishlist!");
+      setIsWishlisted(true);
+
+      await showWarning(
+        "Already in Wishlist",
+        "This pet is already in your wishlist!"
+      );
+
       return;
     }
 
@@ -99,8 +135,14 @@ function PetDetails() {
       JSON.stringify(updatedWishlist)
     );
 
+    setIsWishlisted(true);
+
     window.dispatchEvent(new Event("wishlistUpdated"));
-    alert("Pet added to wishlist!");
+
+    await showSuccess(
+      "Added to Wishlist!",
+      `${pet.name} has been added to your wishlist.`
+    );
   };
 
   // Convert uploaded Data URL into Blob URL
@@ -137,21 +179,27 @@ function PetDetails() {
   };
 
   // View uploaded report
-  const viewReport = (report) => {
+  const viewReport = async (report) => {
     let newWindow = null;
 
     try {
-      // Open window directly from button click
       newWindow = window.open("about:blank", "_blank");
 
       if (!newWindow) {
-        alert("Please allow pop-ups to view the report.");
+        await showWarning(
+          "Pop-up Blocked",
+          "Please allow pop-ups to view the report."
+        );
         return;
       }
 
       if (!report.fileData) {
         newWindow.close();
-        alert("Report file is not available.");
+
+        await showError(
+          "File Not Available",
+          "Report file is not available."
+        );
         return;
       }
 
@@ -159,11 +207,9 @@ function PetDetails() {
 
       newWindow.location.href = fileURL;
 
-      // Keep URL available while the report loads
       setTimeout(() => {
         URL.revokeObjectURL(fileURL);
       }, 60000);
-
     } catch (error) {
       console.error("View Report Error:", error);
 
@@ -171,15 +217,21 @@ function PetDetails() {
         newWindow.close();
       }
 
-      alert("Unable to open this report. Please download it instead.");
+      await showError(
+        "Unable to Open Report",
+        "Please download the report instead."
+      );
     }
   };
 
-  // Download original uploaded report
-  const downloadReport = (report) => {
+  // Download uploaded report
+  const downloadReport = async (report) => {
     try {
       if (!report.fileData) {
-        alert("Report file is not available.");
+        await showError(
+          "File Not Available",
+          "Report file is not available."
+        );
         return;
       }
 
@@ -196,17 +248,23 @@ function PetDetails() {
       setTimeout(() => {
         URL.revokeObjectURL(fileURL);
       }, 1000);
-
     } catch (error) {
       console.error("Download Report Error:", error);
-      alert("Unable to download this report.");
+
+      await showError(
+        "Download Failed",
+        "Unable to download this report."
+      );
     }
   };
 
-  // Download all uploaded reports individually
-  const downloadAllReports = () => {
+  // Download all uploaded reports
+  const downloadAllReports = async () => {
     if (uploadedReports.length === 0) {
-      alert("No uploaded reports available.");
+      await showWarning(
+        "No Reports",
+        "No uploaded reports available."
+      );
       return;
     }
 
@@ -326,18 +384,22 @@ function PetDetails() {
               </button>
 
               <button
-                className="pet-wishlist-btn"
+                className={`pet-wishlist-btn ${
+                  isWishlisted ? "wishlisted" : ""
+                }`}
                 onClick={addToWishlist}
               >
-                ♡ Add to Wishlist
+                <span>{isWishlisted ? "♥" : "♡"}</span>
+                {isWishlisted
+                  ? "Added to Wishlist"
+                  : "Add to Wishlist"}
               </button>
 
             </div>
           </div>
         </div>
 
-        {/* Uploaded Pet Reports */}
-
+        {/* Uploaded Health Reports */}
         <section className="pet-health-section">
 
           <div className="pet-health-heading">

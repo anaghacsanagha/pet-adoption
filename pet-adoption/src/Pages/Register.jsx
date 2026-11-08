@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../Components/Header";
 import Footer from "../Components/Footer";
+import { showSuccess } from "../utils/sweetAlert";
 
 function Register() {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ function Register() {
     email: "",
     phone: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
 
   const [error, setError] = useState("");
@@ -21,7 +22,7 @@ function Register() {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
     setError("");
   };
@@ -50,7 +51,6 @@ function Register() {
       setLoading(true);
       setError("");
 
-      // Check existing users from server
       const response = await fetch("http://localhost:3000/users");
 
       if (!response.ok) {
@@ -73,25 +73,27 @@ function Register() {
         name: name.trim(),
         email: email.trim().toLowerCase(),
         phone,
-        password
+        password,
       };
 
-      // Save user to JSON Server
       const saveResponse = await fetch("http://localhost:3000/users", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(newUser)
+        body: JSON.stringify(newUser),
       });
 
       if (!saveResponse.ok) {
         throw new Error("Registration failed. Please try again.");
       }
 
-      alert("Registration successful! Please login.");
-      navigate("/login");
+      await showSuccess(
+        "Registration Successful!",
+        "Your account has been created. Please login."
+      );
 
+      navigate("/login");
     } catch (err) {
       console.error(err);
       setError("Server connection failed. Please start the server.");
@@ -106,7 +108,6 @@ function Register() {
 
       <section className="auth-section">
         <div className="auth-container">
-
           <div className="auth-image">
             <img
               src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=1000"
@@ -128,7 +129,6 @@ function Register() {
             </p>
 
             <form onSubmit={handleSubmit} className="auth-form">
-
               <div className="auth-input-group">
                 <label>Full Name</label>
                 <input
@@ -199,14 +199,12 @@ function Register() {
               >
                 {loading ? "Creating Account..." : "Create Account →"}
               </button>
-
             </form>
 
             <p className="auth-switch">
               Already have an account?
               <Link to="/login"> Login here</Link>
             </p>
-
           </div>
         </div>
       </section>

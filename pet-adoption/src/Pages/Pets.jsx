@@ -1,3 +1,4 @@
+
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -5,31 +6,6 @@ import PetCard from "../Components/PetCard";
 import SearchBar from "../Components/SearchBar";
 import PetFilter from "../Components/PetFilter";
 import SectionTitle from "../Components/SectionTitle";
-
-// Convert pet age into months
-function getAgeInMonths(age) {
-  if (age === undefined || age === null || age === "") {
-    return null;
-  }
-
-  const value = String(age).toLowerCase().trim();
-  const number = parseFloat(value);
-
-  if (Number.isNaN(number)) {
-    return null;
-  }
-
-  if (value.includes("month")) {
-    return number;
-  }
-
-  if (value.includes("year")) {
-    return number * 12;
-  }
-
-  // Plain number is treated as years
-  return number * 12;
-}
 
 function Pets() {
   const [searchParams] = useSearchParams();
@@ -42,7 +18,7 @@ function Pets() {
   const [filters, setFilters] = useState({
     type: initialType,
     gender: "All",
-    ageGroup: "All",
+    location: "All",
     vaccinated: "All"
   });
 
@@ -76,7 +52,7 @@ function Pets() {
     fetchPets();
   }, []);
 
-  // All filters work together
+  // Search and filters
   const filteredPets = useMemo(() => {
     return pets.filter((pet) => {
       const searchText = search.toLowerCase().trim();
@@ -96,64 +72,36 @@ function Pets() {
       // Pet type filter
       const matchesType =
         filters.type === "All" ||
-        pet.type === filters.type;
+        String(pet.type || "").toLowerCase() ===
+          filters.type.toLowerCase();
 
       // Gender filter
       const matchesGender =
         filters.gender === "All" ||
-        pet.gender?.toLowerCase() === filters.gender.toLowerCase();
+        String(pet.gender || "").toLowerCase() ===
+          filters.gender.toLowerCase();
 
-      // Age filter
-      const ageInMonths = getAgeInMonths(pet.age);
-
-      let matchesAge = true;
-
-      if (filters.ageGroup !== "All") {
-        if (ageInMonths === null) {
-          matchesAge = false;
-        } else {
-          switch (filters.ageGroup) {
-            case "0-3":
-              matchesAge = ageInMonths >= 0 && ageInMonths < 3;
-              break;
-
-            case "3-6":
-              matchesAge = ageInMonths >= 3 && ageInMonths < 6;
-              break;
-
-            case "6-12":
-              matchesAge = ageInMonths >= 6 && ageInMonths < 12;
-              break;
-
-            case "12-24":
-              matchesAge = ageInMonths >= 12 && ageInMonths < 24;
-              break;
-
-            case "24-60":
-              matchesAge = ageInMonths >= 24 && ageInMonths < 60;
-              break;
-
-            case "60+":
-              matchesAge = ageInMonths >= 60;
-              break;
-
-            default:
-              matchesAge = true;
-          }
-        }
-      }
+      // Place filter
+      const matchesLocation =
+        filters.location === "All" ||
+        String(pet.location || "").toLowerCase() ===
+          filters.location.toLowerCase();
 
       // Vaccination filter
+      const isVaccinated =
+        pet.vaccinated === true ||
+        String(pet.vaccinated).toLowerCase() === "yes";
+
       const matchesVaccination =
         filters.vaccinated === "All" ||
-        (filters.vaccinated === "Yes" && pet.vaccinated === true) ||
-        (filters.vaccinated === "No" && pet.vaccinated === false);
+        (filters.vaccinated === "Yes" && isVaccinated) ||
+        (filters.vaccinated === "No" && !isVaccinated);
 
       return (
         matchesSearch &&
         matchesType &&
         matchesGender &&
-        matchesAge &&
+        matchesLocation &&
         matchesVaccination
       );
     });
@@ -166,7 +114,7 @@ function Pets() {
     setFilters({
       type: "All",
       gender: "All",
-      ageGroup: "All",
+      location: "All",
       vaccinated: "All"
     });
   };

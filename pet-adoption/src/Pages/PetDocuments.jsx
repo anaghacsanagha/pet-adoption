@@ -1,52 +1,64 @@
 
 import React, { useEffect, useState } from "react";
+import {
+  showConfirm,
+  showSuccess,
+  showError,
+  showWarning,
+} from "../utils/sweetAlert";
+
+const API = "http://localhost:3000";
 
 function PetDocuments() {
   const user = JSON.parse(
     localStorage.getItem("pawhavenUser") || "null"
   );
 
-  const [pets, setPets] = useState([]);
-  const [selectedPet, setSelectedPet] = useState("");
+  const [documents, setDocuments] = useState([]);
+  const [showForm, setShowForm] = useState(false);
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // Fetch logged-in user's pets
-  useEffect(() => {
-    const fetchPets = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:3000/pets"
-        );
+  // Fetch only manually uploaded documents
+  const fetchDocuments = async () => {
+    try {
+      setFetching(true);
 
-        if (!response.ok) {
-          throw new Error("Unable to fetch pets.");
-        }
+      const response = await fetch(`${API}/petDocuments`);
 
-        const data = await response.json();
-
-        const myPets = data.filter(
-          (pet) =>
-            String(pet.ownerId) === String(user?.id)
-        );
-
-        setPets(myPets);
-      } catch (error) {
-        console.error("Pet Fetch Error:", error);
-        setMessage(error.message);
-      } finally {
-        setFetching(false);
+      if (!response.ok) {
+        throw new Error("Unable to fetch documents.");
       }
-    };
 
-    fetchPets();
-  }, [user?.id]);
+      const data = await response.json();
 
-  // Select and validate file
-  const handleFileChange = (e) => {
+      setDocuments(
+        data.filter(
+          (doc) =>
+            String(doc.ownerId) === String(user?.id) &&
+            !doc.petId &&
+            !doc.petName &&
+            !doc.documentType
+        )
+      );
+    } catch (error) {
+      console.error(error);
+      setMessage(error.message);
+      await showError("Unable to Load Documents", error.message);
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  // Select document
+  const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
 
     setMessage("");
@@ -62,11 +74,14 @@ function PetDocuments() {
     ];
 
     if (!allowedTypes.includes(selectedFile.type)) {
-      setMessage(
-        "Only PDF, JPG, PNG and WEBP files are allowed."
-      );
+      setMessage("Only PDF, JPG, PNG and WEBP files are allowed.");
       setFile(null);
       e.target.value = "";
+
+      await showWarning(
+        "Invalid File",
+        "Only PDF, JPG, PNG and WEBP files are allowed."
+      );
       return;
     }
 
@@ -74,6 +89,11 @@ function PetDocuments() {
       setMessage("File size should be less than 3 MB.");
       setFile(null);
       e.target.value = "";
+
+      await showWarning(
+        "File Too Large",
+        "File size should be less than 3 MB."
+      );
       return;
     }
 
@@ -86,15 +106,13 @@ function PetDocuments() {
       const reader = new FileReader();
 
       reader.onload = () => resolve(reader.result);
-
-      reader.onerror = () =>
-        reject(new Error("Unable to read file."));
+      reader.onerror = () => reject(new Error("Unable to read file."));
 
       reader.readAsDataURL(selectedFile);
     });
   };
 
-  // Upload document
+  // Upload manually added document
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -103,16 +121,13 @@ function PetDocuments() {
 
     if (!user?.id) {
       setMessage("Please login first.");
-      return;
-    }
-
-    if (!selectedPet) {
-      setMessage("Please select your pet.");
+      await showWarning("Please Login", "Please login first.");
       return;
     }
 
     if (!file) {
       setMessage("Please choose a document.");
+      await showWarning("No File Selected", "Please choose a document.");
       return;
     }
 
@@ -122,36 +137,21 @@ function PetDocuments() {
       const fileData = await readFile(file);
 
       const documentData = {
-        petId: String(selectedPet),
         ownerId: user.id,
-        documentType: "Pet Document",
         fileName: file.name,
-        fileData: fileData,
+        fileData,
         uploadedAt: new Date().toISOString(),
       };
 
-      console.log("Uploading document:", {
-        petId: documentData.petId,
-        ownerId: documentData.ownerId,
-        fileName: documentData.fileName,
-        fileSize: file.size,
+      const response = await fetch(`${API}/petDocuments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(documentData),
       });
 
-      const response = await fetch(
-        "http://localhost:3000/petDocuments",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(documentData),
-        }
-      );
-
       const responseText = await response.text();
-
-      console.log("Upload Status:", response.status);
-      console.log("Upload Response:", responseText);
 
       if (!response.ok) {
         throw new Error(
@@ -161,26 +161,102 @@ function PetDocuments() {
 
       const savedDocument = JSON.parse(responseText);
 
-      console.log("Document uploaded successfully:", savedDocument);
+      setDocuments((prev) => [...prev, savedDocument]);
 
+      setFile(null);
       setSuccess(true);
       setMessage("Document uploaded successfully!");
 
-      setFile(null);
-      setSelectedPet("");
-
-      e.target.reset();
-
-    } catch (error) {
-      console.error("Document Upload Error:", error);
-
-      setSuccess(false);
-      setMessage(
-        error.message || "Something went wrong during upload."
+      await showSuccess(
+        "Document Uploaded!",
+        "Your document has been uploaded successfully."
       );
 
+      setShowForm(false);
+      setMessage("");
+      setSuccess(false);
+    } catch (error) {
+      console.error(error);
+      setMessage(error.message || "Document upload failed.");
+
+      await showError(
+        "Upload Failed",
+        error.message || "Document upload failed."
+      );
     } finally {
       setLoading(false);
+    }
+  };
+
+  // View document
+  const handleView = async (doc) => {
+    if (!doc.fileData) {
+      await showError(
+        "File Not Available",
+        "Document file is not available."
+      );
+      return;
+    }
+
+    const newWindow = window.open();
+
+    if (newWindow) {
+      const iframe = newWindow.document.createElement("iframe");
+
+      iframe.src = doc.fileData;
+      iframe.style.width = "100%";
+      iframe.style.height = "100vh";
+      iframe.style.border = "none";
+
+      newWindow.document.body.style.margin = "0";
+      newWindow.document.body.appendChild(iframe);
+    } else {
+      await showWarning(
+        "Pop-up Blocked",
+        "Please allow pop-ups to view the document."
+      );
+    }
+  };
+
+  // Delete document
+  const handleDelete = async (doc) => {
+    if (String(doc.ownerId) !== String(user?.id)) {
+      await showWarning(
+        "Not Allowed",
+        "You cannot delete this document."
+      );
+      return;
+    }
+
+    const confirmDelete = await showConfirm(
+      "Delete Document?",
+      `Are you sure you want to delete ${doc.fileName}?`
+    );
+
+    if (!confirmDelete.isConfirmed) return;
+
+    try {
+      const response = await fetch(
+        `${API}/petDocuments/${doc.id}`,
+        { method: "DELETE" }
+      );
+
+      if (!response.ok) {
+        throw new Error("Unable to delete document.");
+      }
+
+      setDocuments((prev) =>
+        prev.filter(
+          (item) => String(item.id) !== String(doc.id)
+        )
+      );
+
+      await showSuccess(
+        "Document Deleted",
+        "Your document was deleted successfully."
+      );
+    } catch (error) {
+      await showError("Delete Failed", error.message);
     }
   };
 
@@ -188,70 +264,42 @@ function PetDocuments() {
     <div style={styles.container}>
       <div style={styles.card}>
 
-        <h2 style={styles.heading}>
-          📄 Add Your Pet Documents
-        </h2>
+        <div style={styles.header}>
+          <div>
+            <h2 style={styles.heading}>📄 Pet Documents</h2>
+            <p style={styles.description}>
+              Upload and manage your important documents in one place.
+            </p>
+          </div>
 
-        <p style={styles.description}>
-          Keep your pet's important documents safe in one place.
-        </p>
-
-        {fetching ? (
-          <p>Loading your pets...</p>
-        ) : pets.length === 0 ? (
-          <p style={styles.message}>
-            No pets found for your account. Add your pet first.
-          </p>
-        ) : (
-          <form onSubmit={handleSubmit}>
-
-            <label style={styles.label}>
-              Select Your Pet
-            </label>
-
-            <select
-              value={selectedPet}
-              onChange={(e) =>
-                setSelectedPet(e.target.value)
-              }
-              style={styles.input}
-              required
+          {!showForm && (
+            <button
+              type="button"
+              style={styles.addButton}
+              onClick={() => {
+                setShowForm(true);
+                setFile(null);
+                setMessage("");
+                setSuccess(false);
+              }}
             >
-              <option value="">Choose your pet</option>
+              + Add Document
+            </button>
+          )}
+        </div>
 
-              {pets.map((pet) => (
-                <option key={pet.id} value={pet.id}>
-                  {pet.name}
-                </option>
-              ))}
-            </select>
+        {showForm && (
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <h3 style={styles.formHeading}>
+              Upload New Document
+            </h3>
 
-            <label style={styles.label}>
-              Upload Document
-            </label>
-
-            <label style={styles.uploadBox}>
-              <span style={styles.uploadIcon}>📁</span>
-
-              <strong style={styles.uploadTitle}>
-                + Add Documents
-              </strong>
-
-              <span style={styles.uploadText}>
-                Click here to choose your file
-              </span>
-
-              <span style={styles.hint}>
-                PDF, JPG, PNG, WEBP · Maximum 3 MB
-              </span>
-
-              <input
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png,.webp"
-                onChange={handleFileChange}
-                style={{ display: "none" }}
-              />
-            </label>
+            <input
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,.webp"
+              onChange={handleFileChange}
+              style={styles.fileInput}
+            />
 
             {file && (
               <p style={styles.fileName}>
@@ -270,20 +318,97 @@ function PetDocuments() {
               </p>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                ...styles.uploadButton,
-                opacity: loading ? 0.6 : 1,
-                cursor: loading ? "not-allowed" : "pointer",
-              }}
-            >
-              {loading ? "Uploading..." : "Upload Document"}
-            </button>
+            <div style={styles.buttonGroup}>
+              <button
+                type="submit"
+                disabled={loading}
+                style={styles.uploadButton}
+              >
+                {loading ? "Uploading..." : "Upload Document"}
+              </button>
 
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForm(false);
+                  setFile(null);
+                  setMessage("");
+                  setSuccess(false);
+                }}
+                disabled={loading}
+                style={styles.cancelButton}
+              >
+                Cancel
+              </button>
+            </div>
+
+            <p style={styles.hint}>
+              PDF, JPG, PNG, WEBP · Maximum 3 MB
+            </p>
           </form>
         )}
+
+        <div style={styles.documentSection}>
+          <h3 style={styles.sectionHeading}>
+            Uploaded Documents
+          </h3>
+
+          {fetching ? (
+            <p style={styles.info}>Loading documents...</p>
+          ) : documents.length === 0 ? (
+            <div style={styles.emptyBox}>
+              <span style={styles.emptyIcon}>📁</span>
+              <p>No documents uploaded yet.</p>
+              <p style={styles.emptySubtext}>
+                Click Add Document to upload your first document.
+              </p>
+            </div>
+          ) : (
+            <div style={styles.documentList}>
+              {documents.map((doc) => (
+                <div key={doc.id} style={styles.documentItem}>
+                  <div style={styles.documentDetails}>
+                    <span style={styles.documentIcon}>
+                      {doc.fileName?.toLowerCase().endsWith(".pdf")
+                        ? "📕"
+                        : "🖼️"}
+                    </span>
+
+                    <div style={{ minWidth: 0 }}>
+                      <strong style={styles.documentName}>
+                        {doc.fileName}
+                      </strong>
+
+                      <p style={styles.date}>
+                        {doc.uploadedAt
+                          ? new Date(doc.uploadedAt).toLocaleDateString()
+                          : ""}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={styles.actions}>
+                    <button
+                      type="button"
+                      onClick={() => handleView(doc)}
+                      style={styles.viewButton}
+                    >
+                      View
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(doc)}
+                      style={styles.deleteButton}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
       </div>
     </div>
@@ -299,11 +424,10 @@ const styles = {
 
   card: {
     width: "100%",
-    maxWidth: "850px",
-    minHeight: "450px",
+    maxWidth: "950px",
     margin: "0 auto",
     background: "#FFFFFF",
-    padding: "35px",
+    padding: "30px",
     borderRadius: "16px",
     border: "1px solid #F1E5DD",
     boxShadow: "0 5px 20px rgba(120,85,65,0.09)",
@@ -311,86 +435,202 @@ const styles = {
     boxSizing: "border-box",
   },
 
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "15px",
+    flexWrap: "wrap",
+    marginBottom: "25px",
+  },
+
   heading: {
     fontSize: "27px",
     color: "#765846",
-    marginBottom: "10px",
+    margin: "0 0 10px",
   },
 
   description: {
     color: "#A18472",
-    marginBottom: "30px",
+    margin: 0,
+    lineHeight: 1.6,
   },
 
-  label: {
-    display: "block",
-    marginBottom: "10px",
+  addButton: {
+    padding: "12px 20px",
+    background: "#789477",
+    color: "#FFFFFF",
+    border: "none",
+    borderRadius: "8px",
     fontWeight: "bold",
+    fontSize: "14px",
+    cursor: "pointer",
   },
 
-  input: {
-    width: "100%",
-    padding: "14px",
+  form: {
     marginBottom: "25px",
+    padding: "22px",
+    borderRadius: "10px",
+    background: "#FFF8F3",
     border: "1px solid #EAD8CC",
+  },
+
+  formHeading: {
+    margin: "0 0 18px",
+    fontSize: "19px",
+    color: "#765846",
+  },
+
+  fileInput: {
+    width: "100%",
+    padding: "13px",
+    background: "#FFFFFF",
+    border: "1px dashed #C8A995",
     borderRadius: "8px",
     boxSizing: "border-box",
   },
 
-  uploadBox: {
-    width: "100%",
-    minHeight: "220px",
-    border: "2px dashed #C8A995",
-    borderRadius: "12px",
-    background: "#FFF8F3",
+  fileName: {
+    marginTop: "10px",
+    overflowWrap: "anywhere",
+    fontSize: "14px",
+  },
+
+  buttonGroup: {
     display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: "12px",
+    gap: "10px",
+    flexWrap: "wrap",
+    marginTop: "15px",
+  },
+
+  uploadButton: {
+    padding: "12px 18px",
+    background: "#765846",
+    color: "#FFFFFF",
+    border: "none",
+    borderRadius: "8px",
+    fontWeight: "bold",
     cursor: "pointer",
-    padding: "25px",
-    boxSizing: "border-box",
   },
 
-  uploadIcon: {
-    fontSize: "42px",
-  },
-
-  uploadTitle: {
-    fontSize: "22px",
-  },
-
-  uploadText: {
-    color: "#A18472",
+  cancelButton: {
+    padding: "12px 18px",
+    background: "#EFE5DF",
+    color: "#765846",
+    border: "none",
+    borderRadius: "8px",
+    fontWeight: "bold",
+    cursor: "pointer",
   },
 
   hint: {
+    color: "#A18472",
+    fontSize: "12px",
+    marginBottom: 0,
+  },
+
+  documentSection: {
+    borderTop: "1px solid #F0E3DA",
+    paddingTop: "20px",
+  },
+
+  sectionHeading: {
+    color: "#765846",
+    fontSize: "19px",
+    marginBottom: "15px",
+  },
+
+  emptyBox: {
+    textAlign: "center",
+    padding: "35px 15px",
+    background: "#FFFCFA",
+    border: "1px dashed #EAD8CC",
+    borderRadius: "10px",
+  },
+
+  emptyIcon: {
+    fontSize: "35px",
+  },
+
+  emptySubtext: {
+    color: "#A18472",
     fontSize: "13px",
+  },
+
+  documentList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  },
+
+  documentItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "12px",
+    flexWrap: "wrap",
+    padding: "15px",
+    background: "#FFFCFA",
+    border: "1px solid #F0E3DA",
+    borderRadius: "9px",
+  },
+
+  documentDetails: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    minWidth: 0,
+    flex: 1,
+  },
+
+  documentIcon: {
+    fontSize: "27px",
+  },
+
+  documentName: {
+    display: "block",
+    fontSize: "14px",
+    overflowWrap: "anywhere",
+    color: "#765846",
+  },
+
+  date: {
+    margin: "5px 0 0",
+    fontSize: "11px",
     color: "#A18472",
   },
 
-  fileName: {
-    marginTop: "15px",
-    overflowWrap: "anywhere",
+  actions: {
+    display: "flex",
+    gap: "7px",
+  },
+
+  viewButton: {
+    padding: "7px 12px",
+    background: "#E8F0E6",
+    color: "#557653",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+  },
+
+  deleteButton: {
+    padding: "7px 12px",
+    background: "#FBEAEA",
+    color: "#B54747",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
   },
 
   message: {
-    marginTop: "15px",
+    marginTop: "12px",
     fontWeight: "500",
     overflowWrap: "anywhere",
   },
 
-  uploadButton: {
-    width: "100%",
-    marginTop: "20px",
-    padding: "16px",
-    background: "#765846",
-    color: "#FFFFFF",
-    border: "none",
-    borderRadius: "9px",
-    fontSize: "17px",
-    fontWeight: "bold",
+  info: {
+    color: "#A18472",
   },
 };
 

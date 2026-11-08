@@ -60,3 +60,22 @@ img {
     padding: 50px 0;
   }
 }
+
+
+.pawhaven-swal-popup {
+  border-radius: 20px;
+  font-family: inherit;
+  padding: 25px;
+}
+
+.pawhaven-swal-title {
+  color: #493b35;
+  font-weight: 700;
+}
+
+.pawhaven-swal-confirm,
+.pawhaven-swal-cancel {
+  border-radius: 10px !important;
+  padding: 10px 22px !important;
+  font-weight: 600 !important;
+}

@@ -1,3 +1,4 @@
+
 {
   "name": "pawhaven-server",
   "version": "1.0.0",
@@ -5,10 +6,9 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node index.js"
+    "start": "json-server --watch db.json --port 3000"
   },
   "dependencies": {
-    "body-parser": "^2.4.0",
     "json-server": "0.17.4"
   }
 }

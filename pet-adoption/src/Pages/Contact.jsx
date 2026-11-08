@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import SectionTitle from "../Components/SectionTitle";
+import { showSuccess, showError } from "../utils/sweetAlert";
 
 function Contact() {
   const [formData, setFormData] = useState({
@@ -20,10 +21,8 @@ function Contact() {
     });
   };
 
-  // Save message to JSON Server
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setLoading(true);
 
     const newMessage = {
@@ -47,7 +46,10 @@ function Contact() {
         throw new Error("Failed to send message");
       }
 
-      alert("Your message has been submitted successfully!");
+      await showSuccess(
+        "Message Submitted!",
+        "Your message has been submitted successfully."
+      );
 
       setFormData({
         name: "",
@@ -57,7 +59,10 @@ function Contact() {
       });
     } catch (error) {
       console.error("Message submission error:", error);
-      alert("Something went wrong. Please try again.");
+      await showError(
+        "Submission Failed",
+        "Something went wrong. Please try again."
+      );
     } finally {
       setLoading(false);
     }
