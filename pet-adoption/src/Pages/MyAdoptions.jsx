@@ -8,7 +8,7 @@ import {
   showError,
 } from "../utils/sweetAlert";
 
-const API = "http://localhost:3000";
+const API = "https://pawhaven-server.onrender.com";
 
 function MyAdoptions() {
   const [adoptions, setAdoptions] = useState([]);
@@ -243,3 +243,4 @@ function MyAdoptions() {
 }
 
 export default MyAdoptions;
+

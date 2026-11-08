@@ -61,3 +61,4 @@ export const showConfirm = (title, text = "") => {
 };
 
 export default popup;
+

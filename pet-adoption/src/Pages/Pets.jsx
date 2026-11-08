@@ -32,7 +32,7 @@ function Pets() {
         setLoading(true);
         setError("");
 
-        const response = await fetch("http://localhost:3000/pets");
+        const response = await fetch("https://pawhaven-server.onrender.com/pets");
 
         if (!response.ok) {
           throw new Error("Failed to fetch pets");
@@ -222,3 +222,4 @@ function Pets() {
 }
 
 export default Pets;
+

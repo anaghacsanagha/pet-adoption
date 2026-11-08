@@ -31,7 +31,7 @@ function MyPets({ onEdit }) {
       setError("");
 
       const response = await fetch(
-        `http://localhost:3000/pets?ownerId=${encodeURIComponent(userId)}`
+        `https://pawhaven-server.onrender.com/pets?ownerId=${encodeURIComponent(userId)}`
       );
 
       if (!response.ok) {
@@ -67,7 +67,7 @@ function MyPets({ onEdit }) {
 
     try {
       const checkResponse = await fetch(
-        `http://localhost:3000/pets/${id}`
+        `https://pawhaven-server.onrender.com/pets/${id}`
       );
 
       if (!checkResponse.ok) {
@@ -85,7 +85,7 @@ function MyPets({ onEdit }) {
       }
 
       const response = await fetch(
-        `http://localhost:3000/pets/${id}`,
+        `https://pawhaven-server.onrender.com/pets/${id}`,
         { method: "DELETE" }
       );
 
@@ -261,3 +261,4 @@ function MyPets({ onEdit }) {
 }
 
 export default MyPets;
+

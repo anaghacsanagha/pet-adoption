@@ -24,7 +24,7 @@ function PetDetails() {
     const fetchPet = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/pets/${id}`
+          `https://pawhaven-server.onrender.com/pets/${id}`
         );
 
         if (response.ok) {
@@ -81,7 +81,7 @@ function PetDetails() {
     const fetchUploadedReports = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/petDocuments"
+          "https://pawhaven-server.onrender.com/petDocuments"
         );
 
         if (!response.ok) {
@@ -528,3 +528,4 @@ function PetDetails() {
 }
 
 export default PetDetails;
+

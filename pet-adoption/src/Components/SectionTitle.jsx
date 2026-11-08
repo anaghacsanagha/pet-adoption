@@ -14,3 +14,4 @@ function SectionTitle({ subtitle, title, description, center = true }) {
 }
 
 export default SectionTitle;
+

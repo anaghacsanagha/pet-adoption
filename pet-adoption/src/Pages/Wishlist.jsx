@@ -9,7 +9,7 @@ import {
   showSuccess,
 } from "../utils/sweetAlert";
 
-const API = "http://localhost:3000";
+const API = "https://pawhaven-server.onrender.com";
 
 function getWishlistIds() {
   try {
@@ -205,3 +205,4 @@ function Wishlist() {
 }
 
 export default Wishlist;
+

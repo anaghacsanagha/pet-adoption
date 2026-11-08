@@ -32,7 +32,7 @@ function Contact() {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/messages",
+        "https://pawhaven-server.onrender.com/messages",
         {
           method: "POST",
           headers: {
@@ -192,3 +192,4 @@ function Contact() {
 }
 
 export default Contact;
+

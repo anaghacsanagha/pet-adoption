@@ -31,7 +31,7 @@ function Login() {
       setLoading(true);
       setError("");
 
-      const response = await fetch("http://localhost:3000/users");
+      const response = await fetch("https://pawhaven-server.onrender.com/users");
 
       if (!response.ok) {
         throw new Error("Server connection failed");
@@ -153,3 +153,4 @@ function Login() {
 }
 
 export default Login;
+

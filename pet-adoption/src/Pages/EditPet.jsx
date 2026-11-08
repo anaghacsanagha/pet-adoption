@@ -7,7 +7,7 @@ import {
   showError,
 } from "../utils/sweetAlert";
 
-const API = "http://localhost:3000";
+const API = "https://pawhaven-server.onrender.com";
 
 function EditPet({ petId, onBack, onSaved }) {
   const id = petId;
@@ -898,3 +898,4 @@ function EditPet({ petId, onBack, onSaved }) {
 }
 
 export default EditPet;
+

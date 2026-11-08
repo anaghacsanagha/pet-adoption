@@ -7,7 +7,7 @@ import {
   showWarning,
 } from "../utils/sweetAlert";
 
-const API = "http://localhost:3000";
+const API = "https://pawhaven-server.onrender.com";
 
 function AddPet() {
   const navigate = useNavigate();
@@ -703,3 +703,4 @@ function AddPet() {
 }
 
 export default AddPet;
+

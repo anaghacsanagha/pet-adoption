@@ -110,3 +110,4 @@ function AdoptionTerms() {
 }
 
 export default AdoptionTerms;
+

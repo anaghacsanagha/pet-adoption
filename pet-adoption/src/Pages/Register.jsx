@@ -51,7 +51,7 @@ function Register() {
       setLoading(true);
       setError("");
 
-      const response = await fetch("http://localhost:3000/users");
+      const response = await fetch("https://pawhaven-server.onrender.com/users");
 
       if (!response.ok) {
         throw new Error("Unable to connect to server.");
@@ -76,7 +76,7 @@ function Register() {
         password,
       };
 
-      const saveResponse = await fetch("http://localhost:3000/users", {
+      const saveResponse = await fetch("https://pawhaven-server.onrender.com/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -215,3 +215,4 @@ function Register() {
 }
 
 export default Register;
+

@@ -7,7 +7,7 @@ import {
   showWarning,
 } from "../utils/sweetAlert";
 
-const API = "http://localhost:3000";
+const API = "https://pawhaven-server.onrender.com";
 
 function AdoptionRequest() {
   const { id } = useParams();
@@ -419,3 +419,4 @@ function AdoptionRequest() {
 }
 
 export default AdoptionRequest;
+

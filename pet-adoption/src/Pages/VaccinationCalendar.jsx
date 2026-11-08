@@ -35,7 +35,7 @@ function VaccinationCalendar() {
   useEffect(() => {
     if (!user?.id) return;
 
-    fetch("http://localhost:3000/vaccinationAppointments")
+    fetch("https://pawhaven-server.onrender.com/vaccinationAppointments")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load appointments");
         return res.json();
@@ -79,7 +79,7 @@ function VaccinationCalendar() {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/vaccinationAppointments",
+        "https://pawhaven-server.onrender.com/vaccinationAppointments",
         {
           method: "POST",
           headers: {
@@ -129,7 +129,7 @@ function VaccinationCalendar() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/vaccinationAppointments/${id}`,
+        `https://pawhaven-server.onrender.com/vaccinationAppointments/${id}`,
         { method: "DELETE" }
       );
 
@@ -384,3 +384,4 @@ function VaccinationCalendar() {
 }
 
 export default VaccinationCalendar;
+
