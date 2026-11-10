@@ -12,6 +12,9 @@ function MyPets({ onEdit }) {
   const [myPets, setMyPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isDark, setIsDark] = useState(
+    () => document.querySelector(".pawhaven-app")?.classList.contains("dark-mode") || false
+  );
 
   const navigate = useNavigate();
 
@@ -25,6 +28,34 @@ function MyPets({ onEdit }) {
 
   const userId = user?.id;
 
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(
+        document.querySelector(".pawhaven-app")?.classList.contains("dark-mode") || false
+      );
+    });
+
+    const app = document.querySelector(".pawhaven-app");
+
+    if (app) {
+      observer.observe(app, {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const theme = {
+    background: isDark ? "#242424" : "#fffaf5",
+    card: isDark ? "#303030" : "#ffffff",
+    text: isDark ? "#f5eee7" : "#5b3928",
+    muted: isDark ? "#c0b5aa" : "#777777",
+    border: isDark ? "#4a4a4a" : "#eeeeee",
+    empty: isDark ? "#303030" : "#ffffff",
+  };
+
   const fetchMyPets = async () => {
     try {
       setLoading(true);
@@ -34,9 +65,7 @@ function MyPets({ onEdit }) {
         `https://pawhaven-server.onrender.com/pets?ownerId=${encodeURIComponent(userId)}`
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch pets");
-      }
+      if (!response.ok) throw new Error("Failed to fetch pets");
 
       const data = await response.json();
       setMyPets(data);
@@ -70,17 +99,12 @@ function MyPets({ onEdit }) {
         `https://pawhaven-server.onrender.com/pets/${id}`
       );
 
-      if (!checkResponse.ok) {
-        throw new Error("Pet not found");
-      }
+      if (!checkResponse.ok) throw new Error("Pet not found");
 
       const pet = await checkResponse.json();
 
       if (String(pet.ownerId) !== String(userId)) {
-        await showWarning(
-          "Not Allowed",
-          "You can only delete your own pets!"
-        );
+        await showWarning("Not Allowed", "You can only delete your own pets!");
         return;
       }
 
@@ -89,32 +113,31 @@ function MyPets({ onEdit }) {
         { method: "DELETE" }
       );
 
-      if (!response.ok) {
-        throw new Error("Delete failed");
-      }
+      if (!response.ok) throw new Error("Delete failed");
 
       setMyPets((previousPets) =>
-        previousPets.filter(
-          (item) => String(item.id) !== String(id)
-        )
+        previousPets.filter((item) => String(item.id) !== String(id))
       );
 
-      await showSuccess(
-        "Pet Deleted!",
-        "Pet deleted successfully."
-      );
+      await showSuccess("Pet Deleted!", "Pet deleted successfully.");
     } catch (error) {
       console.error(error);
-      await showError(
-        "Delete Failed",
-        "Unable to delete pet. Please try again."
-      );
+      await showError("Delete Failed", "Unable to delete pet. Please try again.");
     }
+  };
+
+  const buttonStyle = {
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+    padding: "11px",
+    fontWeight: "500",
   };
 
   if (loading) {
     return (
-      <h2 style={{ textAlign: "center", padding: "50px" }}>
+      <h2 style={{ textAlign: "center", padding: "50px", color: theme.text }}>
         Loading...
       </h2>
     );
@@ -122,31 +145,37 @@ function MyPets({ onEdit }) {
 
   if (error) {
     return (
-      <h2 style={{ textAlign: "center", padding: "50px" }}>
+      <h2 style={{ textAlign: "center", padding: "50px", color: theme.text }}>
         {error}
       </h2>
     );
   }
 
   return (
-    <div style={{ padding: "40px 5%", minHeight: "70vh" }}>
-      <h2 style={{ color: "#5b3928", marginBottom: "10px" }}>
+    <div
+      style={{
+        padding: "40px 5%",
+        minHeight: "70vh",
+        background: theme.background,
+        color: theme.text,
+        transition: "all 0.3s ease",
+        borderRadius: "12px",
+      }}
+    >
+      <h2 style={{ color: theme.text, marginBottom: "10px" }}>
         My Adoption Posts
       </h2>
 
-      <p style={{ color: "#777", marginBottom: "30px" }}>
+      <p style={{ color: theme.muted, marginBottom: "30px" }}>
         Manage the pets you have uploaded to PawHaven.
       </p>
 
       <button
         onClick={() => navigate("/add-pet")}
         style={{
+          ...buttonStyle,
           background: "#5b3928",
-          color: "white",
           padding: "12px 22px",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
           marginBottom: "30px",
         }}
       >
@@ -154,9 +183,17 @@ function MyPets({ onEdit }) {
       </button>
 
       {myPets.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "50px 10px" }}>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "50px 10px",
+            background: theme.empty,
+            color: theme.text,
+            borderRadius: "12px",
+          }}
+        >
           <h3>You haven't uploaded any pets yet.</h3>
-          <p>
+          <p style={{ color: theme.muted }}>
             Upload your first pet and help it find a loving home!
           </p>
         </div>
@@ -172,18 +209,19 @@ function MyPets({ onEdit }) {
             <div
               key={pet.id}
               style={{
-                border: "1px solid #eee",
+                border: `1px solid ${theme.border}`,
                 borderRadius: "12px",
                 overflow: "hidden",
-                background: "white",
-                boxShadow: "0 3px 12px rgba(0,0,0,0.08)",
+                background: theme.card,
+                color: theme.text,
+                boxShadow: isDark
+                  ? "0 3px 12px rgba(0,0,0,0.3)"
+                  : "0 3px 12px rgba(0,0,0,0.08)",
+                transition: "all 0.3s ease",
               }}
             >
               <img
-                src={
-                  pet.image ||
-                  "https://placehold.co/400x250?text=Pet"
-                }
+                src={pet.image || "https://placehold.co/400x250?text=Pet"}
                 alt={pet.name}
                 style={{
                   width: "100%",
@@ -193,7 +231,7 @@ function MyPets({ onEdit }) {
               />
 
               <div style={{ padding: "16px" }}>
-                <h3 style={{ color: "#5b3928", marginBottom: "8px" }}>
+                <h3 style={{ color: theme.text, marginBottom: "8px" }}>
                   {pet.name}
                 </h3>
 
@@ -206,13 +244,9 @@ function MyPets({ onEdit }) {
                 <button
                   onClick={() => navigate(`/pet/${pet.id}`)}
                   style={{
+                    ...buttonStyle,
                     width: "100%",
-                    padding: "11px",
                     background: "#765846",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: "pointer",
                     marginTop: "8px",
                     marginBottom: "10px",
                   }}
@@ -224,13 +258,9 @@ function MyPets({ onEdit }) {
                   <button
                     onClick={() => onEdit(pet.id)}
                     style={{
+                      ...buttonStyle,
                       flex: 1,
-                      padding: "10px",
                       background: "#2e7d32",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "6px",
-                      cursor: "pointer",
                     }}
                   >
                     Edit
@@ -239,13 +269,9 @@ function MyPets({ onEdit }) {
                   <button
                     onClick={() => handleDelete(pet.id)}
                     style={{
+                      ...buttonStyle,
                       flex: 1,
-                      padding: "10px",
                       background: "#c62828",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "6px",
-                      cursor: "pointer",
                     }}
                   >
                     Delete
@@ -261,4 +287,3 @@ function MyPets({ onEdit }) {
 }
 
 export default MyPets;
-

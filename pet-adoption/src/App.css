@@ -3072,154 +3072,40 @@ select {
   }
 }
 
+/* -------------------------------------------------------------------- */
 
 
 
-/* ==========================================
-   PAWHAVEN - COMPLETE DARK / LIGHT MODE
-   Add this at the END of App.css
-========================================== */
-
-/* LIGHT MODE DEFAULT */
-
-.pawhaven-app {
-  --page-bg: #fffaf5;
-  --section-bg: #f8f3ed;
-  --card-bg: #ffffff;
-  --soft-bg: #f5eee7;
-  --text-color: #493b35;
-  --muted-text: #81736b;
-  --border-color: #eadfd5;
-  --input-bg: #ffffff;
-
-  min-height: 100vh;
-  background: var(--page-bg);
-  color: var(--text-color);
-  transition: background 0.3s ease, color 0.3s ease;
-}
-
-/* DARK MODE COLORS */
+/* =====================================================
+   PAWHAVEN - COMPLETE DARK MODE
+   ===================================================== */
 
 .pawhaven-app.dark-mode {
-  --page-bg: #191c1b;
-  --section-bg: #202523;
-  --card-bg: #282e2b;
-  --soft-bg: #303834;
-  --text-color: #f3eee8;
-  --muted-text: #c0b8ae;
-  --border-color: #454d48;
-  --input-bg: #303834;
+  --dark-bg: #171d19;
+  --dark-section: #202923;
+  --dark-section-alt: #253129;
+  --dark-card: #2b3730;
+  --dark-card-alt: #334139;
+  --dark-input: #202923;
+  --dark-border: #465449;
+  --dark-text: #f3f0e9;
+  --dark-muted: #bdc4ba;
+  --dark-green: #a5bea0;
+  --dark-green-hover: #8eaa89;
+  --dark-pink: #d9aaa3;
+  --dark-pink-soft: #493735;
 }
 
-/* THEME BUTTON */
+/* GLOBAL */
 
-.theme-toggle-container {
-  display: flex;
-  justify-content: flex-end;
-  padding: 10px 5%;
-  background: var(--page-bg);
+.pawhaven-app.dark-mode {
+  background: var(--dark-bg);
+  color: var(--dark-text);
 }
 
-.theme-toggle-btn {
-  padding: 9px 18px;
-  border: 1px solid var(--border-color);
-  border-radius: 25px;
-  background: var(--card-bg);
-  color: var(--text-color);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.theme-toggle-btn:hover {
-  transform: translateY(-2px);
-}
-
-/* MAIN BACKGROUND */
-
-.pawhaven-app.dark-mode,
 .pawhaven-app.dark-mode main {
-  background: var(--page-bg);
-  color: var(--text-color);
+  background: var(--dark-bg);
 }
-
-/* PAGE BACKGROUNDS */
-
-.pawhaven-app.dark-mode .landing-hero,
-.pawhaven-app.dark-mode .landing-intro,
-.pawhaven-app.dark-mode .landing-why,
-.pawhaven-app.dark-mode .landing-care,
-.pawhaven-app.dark-mode .pets-listing-section,
-.pawhaven-app.dark-mode .pet-details-page,
-.pawhaven-app.dark-mode .pet-not-found,
-.pawhaven-app.dark-mode .wishlist-page,
-.pawhaven-app.dark-mode .my-adoptions-page,
-.pawhaven-app.dark-mode .care-page,
-.pawhaven-app.dark-mode .adoption-terms-page,
-.pawhaven-app.dark-mode .about-page,
-.pawhaven-app.dark-mode .contact-page,
-.pawhaven-app.dark-mode .profile-page,
-.pawhaven-app.dark-mode .adoption-request-page,
-.pawhaven-app.dark-mode .home-categories,
-.pawhaven-app.dark-mode .home-process {
-  background: var(--page-bg);
-  color: var(--text-color);
-}
-
-/* COLOURED SECTIONS */
-
-.pawhaven-app.dark-mode .pets-page-hero,
-.pawhaven-app.dark-mode .home-hero,
-.pawhaven-app.dark-mode .landing-process,
-.pawhaven-app.dark-mode .auth-section,
-.pawhaven-app.dark-mode .home-care-section,
-.pawhaven-app.dark-mode .about-mission-section {
-  background: var(--section-bg);
-  color: var(--text-color);
-}
-
-/* CARDS */
-
-.pawhaven-app.dark-mode .pet-card,
-.pawhaven-app.dark-mode .landing-pet-card,
-.pawhaven-app.dark-mode .home-category-card,
-.pawhaven-app.dark-mode .process-card,
-.pawhaven-app.dark-mode .intro-highlight,
-.pawhaven-app.dark-mode .home-process-card,
-.pawhaven-app.dark-mode .care-tip-card,
-.pawhaven-app.dark-mode .feeding-card,
-.pawhaven-app.dark-mode .terms-card,
-.pawhaven-app.dark-mode .about-feature-card,
-.pawhaven-app.dark-mode .wishlist-card,
-.pawhaven-app.dark-mode .my-adoption-card,
-.pawhaven-app.dark-mode .profile-card,
-.pawhaven-app.dark-mode .adoption-form,
-.pawhaven-app.dark-mode .adoption-form-wrapper,
-.pawhaven-app.dark-mode .contact-form,
-.pawhaven-app.dark-mode .auth-container {
-  background: var(--card-bg);
-  color: var(--text-color);
-  border-color: var(--border-color);
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-}
-
-/* INNER CONTENT */
-
-.pawhaven-app.dark-mode .pet-card-content,
-.pawhaven-app.dark-mode .landing-pet-content,
-.pawhaven-app.dark-mode .pet-details-info div,
-.pawhaven-app.dark-mode .adoption-pet-summary,
-.pawhaven-app.dark-mode .pet-filter,
-.pawhaven-app.dark-mode .pets-empty,
-.pawhaven-app.dark-mode .care-note,
-.pawhaven-app.dark-mode .terms-note,
-.pawhaven-app.dark-mode .about-cta,
-.pawhaven-app.dark-mode .home-image-note,
-.pawhaven-app.dark-mode .hero-image-note {
-  background: var(--soft-bg);
-  color: var(--text-color);
-}
-
-/* ALL IMPORTANT TEXT */
 
 .pawhaven-app.dark-mode h1,
 .pawhaven-app.dark-mode h2,
@@ -3227,183 +3113,1064 @@ select {
 .pawhaven-app.dark-mode h4,
 .pawhaven-app.dark-mode h5,
 .pawhaven-app.dark-mode h6,
+.pawhaven-app.dark-mode strong {
+  color: var(--dark-text);
+}
+
 .pawhaven-app.dark-mode p,
-.pawhaven-app.dark-mode label,
-.pawhaven-app.dark-mode strong,
-.pawhaven-app.dark-mode .pet-card-info,
-.pawhaven-app.dark-mode .pet-breed,
-.pawhaven-app.dark-mode .pet-details-about,
-.pawhaven-app.dark-mode .pet-details-personality p,
-.pawhaven-app.dark-mode .landing-pet-meta,
-.pawhaven-app.dark-mode .why-content li,
-.pawhaven-app.dark-mode .care-tip-card p,
-.pawhaven-app.dark-mode .terms-card p,
-.pawhaven-app.dark-mode .about-description,
-.pawhaven-app.dark-mode .my-adoption-content p,
-.pawhaven-app.dark-mode .profile-details span,
-.pawhaven-app.dark-mode .auth-description,
+.pawhaven-app.dark-mode li,
+.pawhaven-app.dark-mode label {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode a {
+  color: var(--dark-green);
+}
+
+.pawhaven-app.dark-mode a:hover {
+  color: var(--dark-pink);
+}
+
+.pawhaven-app.dark-mode .section-subtitle {
+  color: var(--dark-green);
+}
+
 .pawhaven-app.dark-mode .section-title p {
-  color: var(--text-color);
-}
-
-/* MUTED TEXT */
-
-.pawhaven-app.dark-mode .pet-card-heading span,
-.pawhaven-app.dark-mode .pet-details-info span,
-.pawhaven-app.dark-mode .pet-details-breed,
-.pawhaven-app.dark-mode .pet-search button,
-.pawhaven-app.dark-mode .pets-results-heading p,
-.pawhaven-app.dark-mode .wishlist-top p,
-.pawhaven-app.dark-mode .wishlist-empty p,
-.pawhaven-app.dark-mode .auth-switch,
-.pawhaven-app.dark-mode .auth-description,
-.pawhaven-app.dark-mode .section-title p,
-.pawhaven-app.dark-mode .profile-email {
-  color: var(--muted-text);
-}
-
-/* INPUTS AND SELECTS */
-
-.pawhaven-app.dark-mode input,
-.pawhaven-app.dark-mode textarea,
-.pawhaven-app.dark-mode select,
-.pawhaven-app.dark-mode .filter-group select,
-.pawhaven-app.dark-mode .form-group input,
-.pawhaven-app.dark-mode .form-group textarea,
-.pawhaven-app.dark-mode .form-group select,
-.pawhaven-app.dark-mode .auth-input-group input,
-.pawhaven-app.dark-mode .contact-form input,
-.pawhaven-app.dark-mode .contact-form textarea,
-.pawhaven-app.dark-mode .profile-form input {
-  background: var(--input-bg);
-  color: var(--text-color);
-  border-color: var(--border-color);
-}
-
-.pawhaven-app.dark-mode input::placeholder,
-.pawhaven-app.dark-mode textarea::placeholder {
-  color: var(--muted-text);
-}
-
-/* SEARCH */
-
-.pawhaven-app.dark-mode .pet-search {
-  background: var(--card-bg);
-  border-color: var(--border-color);
-}
-
-.pawhaven-app.dark-mode .pet-search input {
-  background: transparent;
-  color: var(--text-color);
+  color: var(--dark-muted);
 }
 
 /* HEADER */
 
 .pawhaven-app.dark-mode .site-header {
-  background: #252c28;
-  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.25);
+  background: #202923;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.25);
 }
 
 .pawhaven-app.dark-mode .brand-logo,
-.pawhaven-app.dark-mode .header-nav a,
 .pawhaven-app.dark-mode .menu-toggle {
-  color: #f3eee8;
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .header-nav a {
+  color: #d6ddd3;
 }
 
 .pawhaven-app.dark-mode .header-nav a:hover,
 .pawhaven-app.dark-mode .header-nav a.active {
-  color: #b7c9b1;
+  color: var(--dark-green);
 }
 
-.pawhaven-app.dark-mode .header-nav {
-  background: #252c28;
+.pawhaven-app.dark-mode .header-login-btn {
+  background: #789477;
+  color: white !important;
+}
+
+.pawhaven-app.dark-mode .header-register-btn {
+  background: var(--dark-pink);
+  color: #302724 !important;
+}
+
+@media (max-width: 768px) {
+  .pawhaven-app.dark-mode .header-nav {
+    background: #202923;
+  }
 }
 
 /* FOOTER */
 
 .pawhaven-app.dark-mode .site-footer {
-  background: #252c28;
-  color: #f3eee8;
-  border-top: 1px solid var(--border-color);
+  background: #111713;
+  color: var(--dark-text);
 }
 
 .pawhaven-app.dark-mode .footer-about h2,
-.pawhaven-app.dark-mode .footer-container h3,
+.pawhaven-app.dark-mode .footer-container h3 {
+  color: var(--dark-green);
+}
+
 .pawhaven-app.dark-mode .footer-about p,
 .pawhaven-app.dark-mode .footer-contact p,
 .pawhaven-app.dark-mode .footer-links a,
 .pawhaven-app.dark-mode .footer-bottom p {
-  color: #f3eee8;
+  color: #c5ccc3;
 }
 
 .pawhaven-app.dark-mode .footer-bottom {
-  border-top-color: var(--border-color);
+  border-color: #39453c;
 }
 
-/* BUTTONS */
+/* PET CARDS */
 
-.pawhaven-app.dark-mode .pet-view-btn,
-.pawhaven-app.dark-mode .secondary-btn,
-.pawhaven-app.dark-mode .home-secondary-btn,
-.pawhaven-app.dark-mode .pet-wishlist-btn,
-.pawhaven-app.dark-mode .filter-reset,
-.pawhaven-app.dark-mode .pets-reset-btn {
-  background: #39443d;
-  color: #f3eee8;
-  border-color: var(--border-color);
+.pawhaven-app.dark-mode .pet-card {
+  background: var(--dark-card);
+  border: 1px solid var(--dark-border);
+  box-shadow: 0 5px 20px rgba(0,0,0,0.18);
 }
 
-/* MESSAGES AND NOTIFICATIONS */
-
-.pawhaven-app.dark-mode .message,
-.pawhaven-app.dark-mode .chat-message,
-.pawhaven-app.dark-mode .message-card,
-.pawhaven-app.dark-mode .conversation,
-.pawhaven-app.dark-mode .notification,
-.pawhaven-app.dark-mode .alert-box {
-  background: var(--card-bg);
-  color: var(--text-color);
-  border-color: var(--border-color);
+.pawhaven-app.dark-mode .pet-card-heading h3 {
+  color: var(--dark-text);
 }
 
-/* TABLES */
-
-.pawhaven-app.dark-mode table,
-.pawhaven-app.dark-mode th,
-.pawhaven-app.dark-mode td {
-  background: var(--card-bg);
-  color: var(--text-color);
-  border-color: var(--border-color);
+.pawhaven-app.dark-mode .pet-card-heading span,
+.pawhaven-app.dark-mode .pet-breed,
+.pawhaven-app.dark-mode .pet-card-info {
+  color: var(--dark-muted);
 }
 
-/* SMOOTH THEME TRANSITION */
-
-.pawhaven-app,
-.pawhaven-app main,
-.pawhaven-app section,
-.pawhaven-app article,
-.pawhaven-app .site-header,
-.pawhaven-app .site-footer {
-  transition: background-color 0.3s ease, color 0.3s ease;
+.pawhaven-app.dark-mode .wishlist-heart {
+  background: #f2e9e4;
+  color: #a65f68;
 }
 
-.theme-toggle-btn {
-  width: 38px;
-  height: 38px;
-  border: none;
-  border-radius: 50%;
+.pawhaven-app.dark-mode .pet-type-badge {
+  background: #d7c2aa;
+  color: #3b3028;
+}
+
+.pawhaven-app.dark-mode .pet-view-btn {
+  background: #46554a;
+  color: #f3f0e9;
+}
+
+.pawhaven-app.dark-mode .pet-adopt-btn {
   background: #789477;
   color: white;
-  font-size: 19px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: 0.3s ease;
 }
 
-.theme-toggle-btn:hover {
-  transform: scale(1.1);
-  background: #607d5f;
+/* PETS PAGE */
+
+.pawhaven-app.dark-mode .pets-page-hero {
+  background: #29372e;
+}
+
+.pawhaven-app.dark-mode .pets-page-hero h1 {
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .pets-page-hero p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .pets-listing-section {
+  background: var(--dark-bg);
+}
+
+.pawhaven-app.dark-mode .pets-results-heading p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .pet-search {
+  background: var(--dark-card);
+  border-color: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .pet-search input {
+  background: transparent;
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .pet-search input::placeholder {
+  color: #aeb8ae;
+}
+
+.pawhaven-app.dark-mode .pet-search button {
+  color: var(--dark-green);
+}
+
+.pawhaven-app.dark-mode .pet-filter {
+  background: #29352e;
+  border: 1px solid var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .filter-group label,
+.pawhaven-app.dark-mode .form-group label {
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .filter-group select,
+.pawhaven-app.dark-mode .form-group input,
+.pawhaven-app.dark-mode .form-group textarea,
+.pawhaven-app.dark-mode .form-group select {
+  background: var(--dark-input);
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .pets-reset-btn {
+  background: #35443a;
+  color: var(--dark-green);
+  border-color: #60735f;
+}
+
+.pawhaven-app.dark-mode .pets-empty {
+  background: #29352e;
+}
+
+.pawhaven-app.dark-mode .pets-empty p {
+  color: var(--dark-muted);
+}
+
+/* LANDING PAGE */
+
+.pawhaven-app.dark-mode .landing-hero {
+  background: #253129;
+}
+
+.pawhaven-app.dark-mode .hero-tag {
+  background: #39483c;
+  color: #d9e3d4;
+}
+
+.pawhaven-app.dark-mode .hero-content h1 span {
+  color: var(--dark-green);
+}
+
+.pawhaven-app.dark-mode .hero-content > p,
+.pawhaven-app.dark-mode .hero-trust {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .secondary-btn {
+  background: #354239;
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .hero-image-note {
+  background: #344139;
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .hero-image-note small {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .landing-intro,
+.pawhaven-app.dark-mode .landing-why,
+.pawhaven-app.dark-mode .landing-care {
+  background: var(--dark-bg);
+}
+
+.pawhaven-app.dark-mode .intro-highlight {
+  background: #2d3a32;
+  border: 1px solid #435347;
+}
+
+.pawhaven-app.dark-mode .intro-highlight p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .landing-featured,
+.pawhaven-app.dark-mode .landing-process {
+  background: #222d26;
+}
+
+.pawhaven-app.dark-mode .landing-pet-card {
+  background: var(--dark-card);
+  border: 1px solid var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .landing-pet-content h3 {
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .landing-pet-content > p,
+.pawhaven-app.dark-mode .landing-pet-meta {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .landing-pet-image span {
+  background: #d7c2aa;
+  color: #352d26;
+}
+
+.pawhaven-app.dark-mode .landing-pet-link {
+  border-color: var(--dark-border);
+  color: var(--dark-green);
+}
+
+.pawhaven-app.dark-mode .why-content > p,
+.pawhaven-app.dark-mode .why-content li {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .process-card {
+  background: #303d34;
+  border: 1px solid #465449;
+}
+
+.pawhaven-app.dark-mode .process-card p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .process-number {
+  color: var(--dark-green);
+}
+
+.pawhaven-app.dark-mode .care-banner {
+  background: #344139;
+}
+
+.pawhaven-app.dark-mode .care-banner p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .landing-cta {
+  background: #39483c;
+}
+
+.pawhaven-app.dark-mode .landing-cta h2 {
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .landing-cta p {
+  color: #e0e5dc;
+}
+
+/* HOME PAGE */
+
+.pawhaven-app.dark-mode .home-hero {
+  background: #253129;
+}
+
+.pawhaven-app.dark-mode .home-welcome-tag {
+  background: #39483c;
+  color: var(--dark-green);
+}
+
+.pawhaven-app.dark-mode .home-hero-content h1 span,
+.pawhaven-app.dark-mode .home-mini-stats h3 {
+  color: var(--dark-green);
+}
+
+.pawhaven-app.dark-mode .home-hero-content > p,
+.pawhaven-app.dark-mode .home-mini-stats p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .home-secondary-btn {
+  background: #354239;
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .home-image-note {
+  background: #344139;
+}
+
+.pawhaven-app.dark-mode .home-image-note p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .home-categories,
+.pawhaven-app.dark-mode .home-process {
+  background: var(--dark-bg);
+}
+
+.pawhaven-app.dark-mode .home-category-card {
+  background: #2b3830;
+  border-color: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .home-category-card p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .category-icon {
+  background: #405044;
+}
+
+.pawhaven-app.dark-mode .home-featured {
+  background: #222d26;
+}
+
+.pawhaven-app.dark-mode .home-process-card {
+  background: #303d34;
+  border-color: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .home-process-card p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .home-care-section {
+  background: #29372e;
+}
+
+.pawhaven-app.dark-mode .home-care-banner p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .home-final-cta {
+  background: #526d53;
+}
+
+/* AUTH / LOGIN / REGISTER */
+
+.pawhaven-app.dark-mode .auth-section {
+  background: var(--dark-bg);
+}
+
+.pawhaven-app.dark-mode .auth-container {
+  background: #29352e;
+  border: 1px solid var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .auth-form-container h1 {
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .auth-description,
+.pawhaven-app.dark-mode .auth-switch {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .auth-tag {
+  color: var(--dark-green);
+}
+
+.pawhaven-app.dark-mode .auth-input-group label {
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .auth-input-group input {
+  background: var(--dark-input);
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .auth-input-group input::placeholder {
+  color: #aeb8ae;
+}
+
+.pawhaven-app.dark-mode .auth-error {
+  background: #493332;
+  color: #ffb8b3;
+}
+
+/* ADOPTION REQUEST */
+
+.pawhaven-app.dark-mode .adoption-request-page,
+.pawhaven-app.dark-mode .adoption-not-found {
+  background: var(--dark-bg);
+}
+
+.pawhaven-app.dark-mode .adoption-pet-summary {
+  background: #303d34;
+  border: 1px solid var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .adoption-pet-summary p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .adoption-form-wrapper,
+.pawhaven-app.dark-mode .adoption-form {
+  background: #29352e;
+  border: 1px solid var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .adoption-form h2 {
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .form-checkbox {
+  color: var(--dark-muted);
+}
+
+/* PET DETAILS */
+
+.pawhaven-app.dark-mode .pet-details-page,
+.pawhaven-app.dark-mode .pet-not-found {
+  background: var(--dark-bg);
+}
+
+.pawhaven-app.dark-mode .pet-details-page h1 {
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .pet-details-about,
+.pawhaven-app.dark-mode .pet-details-personality p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .pet-details-info div {
+  background: #303d34;
+  border: 1px solid var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .pet-details-info span {
+  color: #b9c2b7;
+}
+
+.pawhaven-app.dark-mode .pet-details-info strong {
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .pet-details-subtitle,
+.pawhaven-app.dark-mode .pet-details-breed {
+  color: var(--dark-green);
+}
+
+.pawhaven-app.dark-mode .pet-wishlist-btn {
+  background: #55413f;
+  color: #f3e4df;
+}
+
+/* WISHLIST */
+
+.pawhaven-app.dark-mode .wishlist-page {
+  background: var(--dark-bg);
+}
+
+.pawhaven-app.dark-mode .wishlist-top p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .wishlist-card {
+  background: #2b3730;
+  border: 1px solid var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .wishlist-actions button {
+  background: #46554a;
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .wishlist-actions a {
+  background: #789477;
+  color: white;
+}
+
+.pawhaven-app.dark-mode .wishlist-actions .wishlist-remove-btn {
+  background: #493735;
+  color: #efb7b1;
+}
+
+.pawhaven-app.dark-mode .wishlist-empty p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .wishlist-empty-icon {
+  background: #493735;
+  color: var(--dark-pink);
+}
+
+/* MY ADOPTIONS */
+
+.pawhaven-app.dark-mode .my-adoptions-page {
+  background: var(--dark-bg);
+}
+
+.pawhaven-app.dark-mode .my-adoption-card {
+  background: #2b3730;
+  border: 1px solid var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .my-adoption-content p,
+.pawhaven-app.dark-mode .my-adoption-status-row span {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .adoption-status.pending {
+  background: #4b402b;
+  color: #f2ce83;
+}
+
+.pawhaven-app.dark-mode .adoption-status.approved {
+  background: #304a36;
+  color: #b9ddb5;
+}
+
+.pawhaven-app.dark-mode .adoption-status.rejected {
+  background: #493735;
+  color: #efb7b1;
+}
+
+.pawhaven-app.dark-mode .adoption-cancel-btn {
+  background: #493735;
+  color: #efb7b1;
+}
+
+.pawhaven-app.dark-mode .my-adoptions-empty p {
+  color: var(--dark-muted);
+}
+
+/* CARE AND FEEDING */
+
+.pawhaven-app.dark-mode .care-page {
+  background: var(--dark-bg);
+}
+
+.pawhaven-app.dark-mode .care-hero {
+  background: #29372e;
+}
+
+.pawhaven-app.dark-mode .care-hero span,
+.pawhaven-app.dark-mode .feeding-card h3 {
+  color: var(--dark-green);
+}
+
+.pawhaven-app.dark-mode .care-hero p {
+  color: var(--dark-green);
+}
+
+.pawhaven-app.dark-mode .care-tip-card p,
+.pawhaven-app.dark-mode .feeding-card li {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .care-tip-card {
+  background: #2b3830;
+  border: 1px solid var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .feeding-card {
+  background: #344139;
+  border: 1px solid #4a594d;
+}
+
+.pawhaven-app.dark-mode .care-note {
+  background: #39483c;
+}
+
+.pawhaven-app.dark-mode .care-note p {
+  color: #e0e7dc;
+}
+
+/* ADOPTION TERMS */
+
+.pawhaven-app.dark-mode .adoption-terms-page {
+  background: var(--dark-bg);
+}
+
+.pawhaven-app.dark-mode .terms-hero {
+  background: #29372e;
+}
+
+.pawhaven-app.dark-mode .terms-card {
+  background: #2b3730;
+  border: 1px solid var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .terms-card p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .terms-number {
+  background: #46564a;
+  color: var(--dark-green);
+}
+
+.pawhaven-app.dark-mode .terms-note {
+  background: #39483c;
+}
+
+.pawhaven-app.dark-mode .terms-note p {
+  color: #e0e7dc;
+}
+
+/* ABOUT */
+
+.pawhaven-app.dark-mode .about-page {
+  background: var(--dark-bg);
+}
+
+.pawhaven-app.dark-mode .about-hero {
+  background: #29372e;
+}
+
+.pawhaven-app.dark-mode .about-hero span,
+.pawhaven-app.dark-mode .about-description,
+.pawhaven-app.dark-mode .about-feature-card p,
+.pawhaven-app.dark-mode .about-cta p {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .about-mission-section {
+  background: #222d26;
+}
+
+.pawhaven-app.dark-mode .about-feature-card {
+  background: #303d34;
+  border: 1px solid var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .about-cta {
+  background: #39483c;
+}
+
+.pawhaven-app.dark-mode .about-cta h2 {
+  color: var(--dark-text);
+}
+
+/* CONTACT */
+
+.pawhaven-app.dark-mode .contact-page {
+  background: var(--dark-bg);
+}
+
+.pawhaven-app.dark-mode .contact-hero {
+  background: #29372e;
+}
+
+.pawhaven-app.dark-mode .contact-hero h1 {
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .contact-hero span {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .contact-info-card {
+  background: #405746;
+  color: #ffffff;
+  border: 1px solid #59715d;
+}
+
+.pawhaven-app.dark-mode .contact-info-card h3,
+.pawhaven-app.dark-mode .contact-info-item h5 {
+  color: #ffffff;
+}
+
+.pawhaven-app.dark-mode .contact-info-item p {
+  color: #e1e9df;
+}
+
+.pawhaven-app.dark-mode .contact-message {
+  background: #526b57;
+  color: #ffffff;
+}
+
+.pawhaven-app.dark-mode .contact-form {
+  background: #2b3730;
+  border: 1px solid var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .contact-form h3,
+.pawhaven-app.dark-mode .contact-form label {
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .contact-form input,
+.pawhaven-app.dark-mode .contact-form textarea {
+  background: #202923;
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .contact-form input::placeholder,
+.pawhaven-app.dark-mode .contact-form textarea::placeholder {
+  color: #aeb8ae;
+}
+
+/* PROFILE */
+
+.pawhaven-app.dark-mode .profile-page {
+  background: var(--dark-bg);
+}
+
+.pawhaven-app.dark-mode .profile-card {
+  background: #2b3730;
+  border: 1px solid var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .profile-email,
+.pawhaven-app.dark-mode .profile-heading span,
+.pawhaven-app.dark-mode .profile-details span {
+  color: var(--dark-muted);
+}
+
+.pawhaven-app.dark-mode .profile-details strong {
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .profile-divider,
+.pawhaven-app.dark-mode .profile-details div {
+  border-color: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .profile-divider {
+  background: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .profile-form label {
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .profile-form input {
+  background: var(--dark-input);
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .profile-cancel-btn {
+  background: #465047;
+  color: var(--dark-text);
+}
+
+.pawhaven-app.dark-mode .profile-logout-btn {
+  background: #493735;
+  color: #efb7b1;
+}
+
+/* ALL FORM INPUTS */
+
+.pawhaven-app.dark-mode input,
+.pawhaven-app.dark-mode textarea,
+.pawhaven-app.dark-mode select {
+  color-scheme: dark;
+}
+
+.pawhaven-app.dark-mode input::placeholder,
+.pawhaven-app.dark-mode textarea::placeholder {
+  color: #aeb8ae;
+}
+
+.pawhaven-app.dark-mode input:focus,
+.pawhaven-app.dark-mode textarea:focus,
+.pawhaven-app.dark-mode select:focus {
+  border-color: var(--dark-green);
+  box-shadow: 0 0 0 3px rgba(165,190,160,0.12);
+}
+
+/* BOOTSTRAP SUPPORT */
+
+.pawhaven-app.dark-mode .bg-white {
+  background-color: var(--dark-card) !important;
+}
+
+.pawhaven-app.dark-mode .text-dark {
+  color: var(--dark-text) !important;
+}
+
+.pawhaven-app.dark-mode .text-muted {
+  color: var(--dark-muted) !important;
+}
+
+.pawhaven-app.dark-mode .border {
+  border-color: var(--dark-border) !important;
+}
+
+.pawhaven-app.dark-mode .table {
+  --bs-table-bg: var(--dark-card);
+  --bs-table-color: var(--dark-text);
+  --bs-table-border-color: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .modal-content {
+  background: var(--dark-card);
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .modal-header,
+.pawhaven-app.dark-mode .modal-footer {
+  border-color: var(--dark-border);
+}
+
+.pawhaven-app.dark-mode .btn-close {
+  filter: invert(1);
+}
+
+/* SWEETALERT */
+
+.dark-mode-popup {
+  background: #2b3730 !important;
+  color: #f3f0e9 !important;
+}
+
+.dark-mode-popup .swal2-title,
+.dark-mode-popup .swal2-html-container {
+  color: #f3f0e9 !important;
+}
+
+.dark-mode-popup .swal2-input,
+.dark-mode-popup .swal2-textarea {
+  background: #202923 !important;
+  color: #f3f0e9 !important;
+  border-color: #465449 !important;
+}
+
+/* SCROLLBAR */
+
+.pawhaven-app.dark-mode ::-webkit-scrollbar {
+  width: 9px;
+}
+
+.pawhaven-app.dark-mode ::-webkit-scrollbar-track {
+  background: #171d19;
+}
+
+.pawhaven-app.dark-mode ::-webkit-scrollbar-thumb {
+  background: #526454;
+  border-radius: 10px;
+}
+
+.pawhaven-app.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: #789477;
+}
+
+/* SMOOTH TRANSITION */
+
+.pawhaven-app,
+.pawhaven-app * {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+}
+
+/* =====================================================
+   DARK MODE TEXT CONTRAST FIX
+   ===================================================== */
+
+.pawhaven-app.dark-mode {
+  color: #f3f0e9;
+}
+
+.pawhaven-app.dark-mode p,
+.pawhaven-app.dark-mode li,
+.pawhaven-app.dark-mode small,
+.pawhaven-app.dark-mode .text-muted {
+  color: #cbd2c8;
+}
+
+.pawhaven-app.dark-mode h1,
+.pawhaven-app.dark-mode h2,
+.pawhaven-app.dark-mode h3,
+.pawhaven-app.dark-mode h4,
+.pawhaven-app.dark-mode h5,
+.pawhaven-app.dark-mode h6,
+.pawhaven-app.dark-mode strong {
+  color: #f5f3ed;
+}
+
+/* Highlighted sections */
+
+.pawhaven-app.dark-mode .landing-cta,
+.pawhaven-app.dark-mode .home-final-cta,
+.pawhaven-app.dark-mode .care-note,
+.pawhaven-app.dark-mode .terms-note,
+.pawhaven-app.dark-mode .about-cta,
+.pawhaven-app.dark-mode .contact-message {
+  color: #ffffff;
+}
+
+.pawhaven-app.dark-mode .landing-cta h1,
+.pawhaven-app.dark-mode .landing-cta h2,
+.pawhaven-app.dark-mode .landing-cta h3,
+.pawhaven-app.dark-mode .landing-cta p,
+.pawhaven-app.dark-mode .home-final-cta h1,
+.pawhaven-app.dark-mode .home-final-cta h2,
+.pawhaven-app.dark-mode .home-final-cta h3,
+.pawhaven-app.dark-mode .home-final-cta p,
+.pawhaven-app.dark-mode .care-note p,
+.pawhaven-app.dark-mode .terms-note p,
+.pawhaven-app.dark-mode .about-cta h1,
+.pawhaven-app.dark-mode .about-cta h2,
+.pawhaven-app.dark-mode .about-cta p,
+.pawhaven-app.dark-mode .contact-message p {
+  color: #ffffff !important;
+}
+
+/* Light badges need dark text */
+
+.pawhaven-app.dark-mode .pet-type-badge,
+.pawhaven-app.dark-mode .landing-pet-image span,
+.pawhaven-app.dark-mode .adoption-status.pending,
+.pawhaven-app.dark-mode .adoption-status.approved,
+.pawhaven-app.dark-mode .adoption-status.rejected {
+  color: #252b25;
+}
+
+/* Buttons */
+
+.pawhaven-app.dark-mode .header-login-btn,
+.pawhaven-app.dark-mode .pet-adopt-btn,
+.pawhaven-app.dark-mode .wishlist-actions a,
+.pawhaven-app.dark-mode .primary-btn,
+.pawhaven-app.dark-mode .home-primary-btn,
+.pawhaven-app.dark-mode .auth-submit-btn,
+.pawhaven-app.dark-mode .form-submit-btn {
+  color: #ffffff !important;
+}
+
+.pawhaven-app.dark-mode .header-register-btn,
+.pawhaven-app.dark-mode .wishlist-heart {
+  color: #302724 !important;
+}
+
+/* Contact panel text */
+
+.pawhaven-app.dark-mode .contact-info-card,
+.pawhaven-app.dark-mode .contact-info-card h3,
+.pawhaven-app.dark-mode .contact-info-card h4,
+.pawhaven-app.dark-mode .contact-info-card h5,
+.pawhaven-app.dark-mode .contact-info-card p,
+.pawhaven-app.dark-mode .contact-info-card span,
+.pawhaven-app.dark-mode .contact-message,
+.pawhaven-app.dark-mode .contact-message * {
+  color: #ffffff !important;
+}
+
+/* Care hero */
+
+.pawhaven-app.dark-mode .care-hero p,
+.pawhaven-app.dark-mode .care-hero span {
+  color: #e4ebe1 !important;
+}
+
+/* Inputs and dropdowns */
+
+.pawhaven-app.dark-mode input,
+.pawhaven-app.dark-mode textarea,
+.pawhaven-app.dark-mode select,
+.pawhaven-app.dark-mode option {
+  color: #f3f0e9;
+  background-color: #202923;
+}
+
+.pawhaven-app.dark-mode input::placeholder,
+.pawhaven-app.dark-mode textarea::placeholder {
+  color: #b8c2b7;
+  opacity: 1;
+}
+
+/* Bootstrap text */
+
+.pawhaven-app.dark-mode .text-dark {
+  color: #f3f0e9 !important;
+}
+
+.pawhaven-app.dark-mode .text-secondary {
+  color: #cbd2c8 !important;
+}
+
+/* Card text readability */
+
+.pawhaven-app.dark-mode .pet-card,
+.pawhaven-app.dark-mode .landing-pet-card,
+.pawhaven-app.dark-mode .wishlist-card,
+.pawhaven-app.dark-mode .my-adoption-card,
+.pawhaven-app.dark-mode .profile-card,
+.pawhaven-app.dark-mode .contact-form {
+  color: #f3f0e9;
+}
+
+.pawhaven-app.dark-mode .pet-card p,
+.pawhaven-app.dark-mode .landing-pet-card p,
+.pawhaven-app.dark-mode .wishlist-card p,
+.pawhaven-app.dark-mode .my-adoption-card p,
+.pawhaven-app.dark-mode .profile-card p,
+.pawhaven-app.dark-mode .contact-form p {
+  color: #cbd2c8;
+}
+
+/* SweetAlert text */
+
+.dark-mode-popup,
+.dark-mode-popup .swal2-title,
+.dark-mode-popup .swal2-html-container {
+  color: #f3f0e9 !important;
 }

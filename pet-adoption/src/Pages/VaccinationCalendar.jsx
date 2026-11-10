@@ -16,12 +16,48 @@ function VaccinationCalendar() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const [isDark, setIsDark] = useState(
+    () =>
+      document.querySelector(".pawhaven-app")
+        ?.classList.contains("dark-mode") || false
+  );
+
   const [formData, setFormData] = useState({
     petName: "",
     vaccineName: "",
     time: "",
     notes: "",
   });
+
+  // Detect dark mode changes
+  useEffect(() => {
+    const app = document.querySelector(".pawhaven-app");
+    if (!app) return;
+
+    const observer = new MutationObserver(() => {
+      setIsDark(app.classList.contains("dark-mode"));
+    });
+
+    observer.observe(app, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const theme = {
+    background: isDark ? "#242424" : "#fffaf5",
+    card: isDark ? "#303030" : "#ffffff",
+    text: isDark ? "#f5eee7" : "#493b35",
+    muted: isDark ? "#c0b5aa" : "#81736b",
+    border: isDark ? "#4a4a4a" : "#e8d5c4",
+    input: isDark ? "#252525" : "#ffffff",
+    appointment: isDark ? "#292929" : "#ffffff",
+    calendar: isDark ? "#303030" : "#ffffff",
+    calendarText: isDark ? "#f5eee7" : "#493b35",
+    today: isDark ? "#51443d" : "#e8d5c4",
+  };
 
   const formatDate = (date) => {
     const year = date.getFullYear();
@@ -162,23 +198,44 @@ function VaccinationCalendar() {
     .filter((item) => item.date >= formatDate(new Date()))
     .sort((a, b) => a.date.localeCompare(b.date));
 
+  const inputStyle = {
+    background: theme.input,
+    color: theme.text,
+    border: `1px solid ${theme.border}`,
+    borderRadius: "8px",
+    padding: "11px",
+    marginBottom: "15px",
+    width: "100%",
+    outline: "none",
+    colorScheme: isDark ? "dark" : "light",
+  };
+
   return (
-    <div className="vaccination-page">
+    <div
+      className={`vaccination-page ${isDark ? "vaccination-dark" : ""}`}
+      style={{
+        background: theme.background,
+        minHeight: "100vh",
+        padding: "45px 6%",
+        color: theme.text,
+        transition: "all 0.3s ease",
+      }}
+    >
       <style>{`
-        .vaccination-page {
-          background: #fffaf5;
-          min-height: 100vh;
-          padding: 45px 6%;
-          color: #493b35;
-        }
         .vaccination-heading {
           text-align: center;
           margin-bottom: 35px;
         }
+
         .vaccination-heading h2 {
-          color: #493b35;
+          color: ${theme.text};
           font-weight: 700;
         }
+
+        .vaccination-heading p {
+          color: ${theme.muted};
+        }
+
         .vaccination-layout {
           display: grid;
           grid-template-columns: 1fr 1fr;
@@ -186,41 +243,90 @@ function VaccinationCalendar() {
           max-width: 1100px;
           margin: auto;
         }
+
         .vaccination-card {
-          background: white;
+          background: ${theme.card};
+          color: ${theme.text};
           padding: 25px;
           border-radius: 16px;
-          box-shadow: 0 4px 18px rgba(0,0,0,.07);
+          border: 1px solid ${theme.border};
+          box-shadow: ${isDark
+            ? "0 4px 18px rgba(0,0,0,.25)"
+            : "0 4px 18px rgba(0,0,0,.07)"};
+          transition: all .3s ease;
         }
+
         .vaccination-card h4 {
           color: #789477;
           margin-bottom: 20px;
           font-weight: 700;
         }
+
+        .vaccination-card h5 {
+          color: ${theme.text};
+        }
+
         .vaccination-page .react-calendar {
           width: 100%;
-          border: none;
+          background: ${theme.calendar};
+          color: ${theme.calendarText};
+          border: 1px solid ${theme.border};
           border-radius: 12px;
           font-family: inherit;
+          overflow: hidden;
         }
+
+        .vaccination-page .react-calendar button {
+          color: ${theme.calendarText};
+        }
+
+        .vaccination-page .react-calendar__navigation button {
+          background: ${theme.calendar};
+          color: ${theme.calendarText};
+        }
+
+        .vaccination-page .react-calendar__navigation button:enabled:hover,
+        .vaccination-page .react-calendar__navigation button:enabled:focus {
+          background: ${theme.today};
+        }
+
+        .vaccination-page .react-calendar__month-view__weekdays {
+          color: ${theme.muted};
+        }
+
+        .vaccination-page .react-calendar__month-view__days__day--neighboringMonth {
+          color: ${isDark ? "#777777" : "#b9aaa0"} !important;
+        }
+
+        .vaccination-page .react-calendar__tile {
+          padding: 14px 5px;
+          background: transparent;
+          border-radius: 8px;
+        }
+
+        .vaccination-page .react-calendar__tile:enabled:hover,
+        .vaccination-page .react-calendar__tile:enabled:focus {
+          background: ${theme.today};
+        }
+
         .vaccination-page .react-calendar__tile--active {
           background: #789477 !important;
           color: white !important;
           border-radius: 8px;
         }
+
         .vaccination-page .react-calendar__tile--now {
-          background: #e8d5c4;
+          background: ${theme.today};
           border-radius: 8px;
         }
-        .vaccination-page .react-calendar__tile {
-          padding: 14px 5px;
+
+        .vaccination-page label {
+          color: ${theme.text};
+          display: block;
+          margin-bottom: 7px;
+          font-weight: 500;
         }
-        .vaccination-page .form-control {
-          margin-bottom: 15px;
-          padding: 11px;
-          border: 1px solid #e8d5c4;
-          border-radius: 8px;
-        }
+
         .vaccination-page .submit-btn {
           background: #789477;
           color: white;
@@ -228,23 +334,47 @@ function VaccinationCalendar() {
           padding: 12px 20px;
           border-radius: 8px;
           width: 100%;
+          font-weight: 600;
         }
+
+        .vaccination-page .submit-btn:disabled {
+          opacity: .6;
+          cursor: not-allowed;
+        }
+
         .appointment-item {
-          border: 1px solid #e8d5c4;
+          background: ${theme.appointment};
+          color: ${theme.text};
+          border: 1px solid ${theme.border};
           border-radius: 10px;
           padding: 14px;
           margin-bottom: 12px;
         }
+
+        .appointment-item p {
+          color: ${theme.muted};
+        }
+
         .appointment-item button {
-          background: #d9a6a0;
+          background: #c16e68;
           border: none;
           color: white;
           border-radius: 6px;
           padding: 6px 12px;
+          cursor: pointer;
         }
+
+        .appointment-item button:hover {
+          background: #a95752;
+        }
+
         @media(max-width: 750px) {
           .vaccination-layout {
             grid-template-columns: 1fr;
+          }
+
+          .vaccination-page {
+            padding: 30px 4% !important;
           }
         }
       `}</style>
@@ -269,7 +399,9 @@ function VaccinationCalendar() {
           </h5>
 
           {selectedAppointments.length === 0 ? (
-            <p>No appointments on this date.</p>
+            <p style={{ color: theme.muted }}>
+              No appointments on this date.
+            </p>
           ) : (
             selectedAppointments.map((item) => (
               <div className="appointment-item" key={item.id}>
@@ -290,7 +422,7 @@ function VaccinationCalendar() {
           <form onSubmit={addAppointment}>
             <label>Pet Name</label>
             <input
-              className="form-control"
+              style={inputStyle}
               name="petName"
               placeholder="Enter pet name"
               value={formData.petName}
@@ -300,7 +432,7 @@ function VaccinationCalendar() {
 
             <label>Vaccine Name</label>
             <input
-              className="form-control"
+              style={inputStyle}
               name="vaccineName"
               placeholder="Enter vaccine name"
               value={formData.vaccineName}
@@ -310,7 +442,7 @@ function VaccinationCalendar() {
 
             <label>Appointment Date</label>
             <input
-              className="form-control"
+              style={inputStyle}
               type="date"
               value={selectedDateString}
               min={formatDate(new Date())}
@@ -331,7 +463,7 @@ function VaccinationCalendar() {
 
             <label>Appointment Time</label>
             <input
-              className="form-control"
+              style={inputStyle}
               type="time"
               name="time"
               value={formData.time}
@@ -341,7 +473,7 @@ function VaccinationCalendar() {
 
             <label>Additional Notes</label>
             <textarea
-              className="form-control"
+              style={{ ...inputStyle, resize: "vertical" }}
               name="notes"
               placeholder="Enter notes (optional)"
               value={formData.notes}
@@ -367,7 +499,9 @@ function VaccinationCalendar() {
         <h4>Upcoming Appointments</h4>
 
         {upcomingAppointments.length === 0 ? (
-          <p>No upcoming appointments.</p>
+          <p style={{ color: theme.muted }}>
+            No upcoming appointments.
+          </p>
         ) : (
           upcomingAppointments.map((item) => (
             <div className="appointment-item" key={item.id}>
@@ -384,4 +518,3 @@ function VaccinationCalendar() {
 }
 
 export default VaccinationCalendar;
-

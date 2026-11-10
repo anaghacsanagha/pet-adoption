@@ -23,6 +23,22 @@ function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editingPetId, setEditingPetId] = useState(null);
 
+  // Detect dark mode from the existing app wrapper
+  const isDarkMode = document.querySelector(".pawhaven-app")?.classList.contains("dark-mode");
+
+  const colors = {
+    background: isDarkMode ? "#171d19" : "#FFF8F3",
+    sidebar: isDarkMode ? "#202923" : "#F3E5DC",
+    text: isDarkMode ? "#F3F0E9" : "#604735",
+    heading: isDarkMode ? "#F3F0E9" : "#604735",
+    muted: isDarkMode ? "#BDC4BA" : "#A18472",
+    border: isDarkMode ? "#465449" : "#EAD8CC",
+    active: isDarkMode ? "#465B49" : "#FFFFFF",
+    activeText: "#FFFFFF",
+    hover: isDarkMode ? "#334139" : "#EAD9CD",
+    logout: isDarkMode ? "#647E62" : "#765846",
+  };
+
   const menuItems = [
     { name: "Add Your Pet", icon: "➕" },
     { name: "My Adoption Posts", icon: "🐾" },
@@ -93,6 +109,123 @@ function Dashboard() {
     }
   };
 
+  const styles = {
+    dashboard: {
+      display: "flex",
+      minHeight: "75vh",
+      width: "100%",
+      background: colors.background,
+      position: "relative",
+      color: colors.text,
+      transition: "background 0.3s ease",
+    },
+
+    sidebar: {
+      width: "260px",
+      minWidth: "260px",
+      background: colors.sidebar,
+      color: colors.text,
+      padding: "25px 15px",
+      display: "flex",
+      flexDirection: "column",
+      borderRight: `1px solid ${colors.border}`,
+      transition: "background 0.3s ease",
+    },
+
+    sidebarOpen: {
+      display: "flex",
+    },
+
+    sidebarTitle: {
+      color: colors.heading,
+      fontSize: "25px",
+      margin: "0 0 5px",
+    },
+
+    sidebarSubtitle: {
+      color: colors.muted,
+      margin: "0 0 30px",
+    },
+
+    menuList: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "10px",
+    },
+
+    menuButton: {
+      display: "flex",
+      alignItems: "center",
+      gap: "12px",
+      width: "100%",
+      padding: "13px 15px",
+      border: "none",
+      borderRadius: "10px",
+      background: "transparent",
+      color: colors.text,
+      cursor: "pointer",
+      textAlign: "left",
+      fontSize: "15px",
+      fontWeight: "500",
+      transition: "0.2s ease",
+    },
+
+    activeMenu: {
+      background: colors.active,
+      color: colors.activeText,
+      fontWeight: "bold",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    },
+
+    logoutButton: {
+      marginTop: "auto",
+      padding: "13px",
+      border: "none",
+      borderRadius: "10px",
+      background: colors.logout,
+      color: "#FFFFFF",
+      cursor: "pointer",
+      fontSize: "15px",
+    },
+
+    mainContent: {
+      flex: 1,
+      minWidth: 0,
+      padding: "30px",
+      background: colors.background,
+      transition: "background 0.3s ease",
+    },
+
+    topBar: {
+      marginBottom: "25px",
+    },
+
+    heading: {
+      color: colors.heading,
+      fontSize: "28px",
+      margin: "0 0 8px",
+    },
+
+    welcome: {
+      color: colors.muted,
+      margin: 0,
+    },
+
+    contentArea: {
+      width: "100%",
+      minWidth: 0,
+      color: colors.text,
+    },
+
+    mobileMenu: {
+      display: "none",
+    },
+
+    overlay: {
+      display: "none",
+    },
+  };
+
   return (
     <div style={styles.dashboard}>
       <button
@@ -110,9 +243,7 @@ function Dashboard() {
       >
         <h2 style={styles.sidebarTitle}>🐾 PawHaven</h2>
 
-        <p style={styles.sidebarSubtitle}>
-          User Dashboard
-        </p>
+        <p style={styles.sidebarSubtitle}>User Dashboard</p>
 
         <div style={styles.menuList}>
           {menuItems.map((item) => (
@@ -124,6 +255,16 @@ function Dashboard() {
                 ...(activeMenu === item.name
                   ? styles.activeMenu
                   : {}),
+              }}
+              onMouseEnter={(e) => {
+                if (activeMenu !== item.name) {
+                  e.currentTarget.style.background = colors.hover;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeMenu !== item.name) {
+                  e.currentTarget.style.background = "transparent";
+                }
               }}
             >
               <span>{item.icon}</span>
@@ -167,117 +308,16 @@ function Dashboard() {
           {renderContent()}
         </div>
       </main>
+
+      <style>{`
+        @media (max-width: 992px) {
+          .dashboard-mobile-placeholder {
+            display: block;
+          }
+        }
+      `}</style>
     </div>
   );
 }
 
-const styles = {
-  dashboard: {
-    display: "flex",
-    minHeight: "75vh",
-    background: "#FFF8F3",
-    position: "relative",
-  },
-
-  sidebar: {
-    width: "260px",
-    minWidth: "260px",
-    background: "#F3E5DC",
-    color: "#604735",
-    padding: "25px 15px",
-    display: "flex",
-    flexDirection: "column",
-    borderRight: "1px solid #EAD8CC",
-  },
-
-  sidebarOpen: {
-    display: "flex",
-  },
-
-  sidebarTitle: {
-    color: "#765846",
-    fontSize: "25px",
-    margin: "0 0 5px",
-  },
-
-  sidebarSubtitle: {
-    color: "#A18472",
-    margin: "0 0 30px",
-  },
-
-  menuList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-  },
-
-  menuButton: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    padding: "13px 15px",
-    border: "none",
-    borderRadius: "10px",
-    background: "transparent",
-    color: "#604735",
-    cursor: "pointer",
-    textAlign: "left",
-    fontSize: "15px",
-    fontWeight: "500",
-  },
-
-  activeMenu: {
-    background: "#FFFFFF",
-    color: "#76513D",
-    fontWeight: "bold",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-  },
-
-  logoutButton: {
-    marginTop: "auto",
-    padding: "13px",
-    border: "none",
-    borderRadius: "10px",
-    background: "#765846",
-    color: "white",
-    cursor: "pointer",
-    fontSize: "15px",
-  },
-
-  mainContent: {
-    flex: 1,
-    minWidth: 0,
-    padding: "30px",
-  },
-
-  topBar: {
-    marginBottom: "25px",
-  },
-
-  heading: {
-    color: "#604735",
-    fontSize: "28px",
-    margin: "0 0 8px",
-  },
-
-  welcome: {
-    color: "#A18472",
-    margin: 0,
-  },
-
-  contentArea: {
-    width: "100%",
-    minWidth: 0,
-  },
-
-  mobileMenu: {
-    display: "none",
-  },
-
-  overlay: {
-    display: "none",
-  },
-};
-
 export default Dashboard;
-

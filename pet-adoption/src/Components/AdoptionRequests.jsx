@@ -19,6 +19,35 @@ function AdoptionRequests() {
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
+  const [isDark, setIsDark] = useState(
+    () => document.querySelector(".pawhaven-app")?.classList.contains("dark-mode") || false
+  );
+
+  useEffect(() => {
+    const app = document.querySelector(".pawhaven-app");
+    if (!app) return;
+
+    const observer = new MutationObserver(() => {
+      setIsDark(app.classList.contains("dark-mode"));
+    });
+
+    observer.observe(app, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const theme = {
+    background: isDark ? "#242424" : "#fffaf5",
+    card: isDark ? "#303030" : "#ffffff",
+    text: isDark ? "#f5eee7" : "#493b35",
+    muted: isDark ? "#c0b5aa" : "#777777",
+    border: isDark ? "#4a4a4a" : "#eeeeee",
+    successBg: isDark ? "#24452e" : "#d1e7dd",
+    successText: isDark ? "#c5edce" : "#0f5132",
+  };
 
   const fetchRequests = async () => {
     try {
@@ -86,10 +115,6 @@ function AdoptionRequests() {
       });
 
       setRequests(ownerRequests);
-
-      console.log("Logged-in user:", user);
-      console.log("My pets:", myPets);
-      console.log("Requests for my pets:", ownerRequests);
     } catch (error) {
       console.error("Adoption requests error:", error);
     } finally {
@@ -165,9 +190,20 @@ function AdoptionRequests() {
     }
   };
 
+  const cardStyle = {
+    background: theme.card,
+    color: theme.text,
+    border: `1px solid ${theme.border}`,
+    borderRadius: "14px",
+    transition: "all 0.3s ease",
+  };
+
   if (loading) {
     return (
-      <h4 className="text-center mt-5">
+      <h4
+        className="text-center mt-5"
+        style={{ color: theme.text }}
+      >
         Loading requests...
       </h4>
     );
@@ -175,20 +211,41 @@ function AdoptionRequests() {
 
   if (!userId && !userEmail) {
     return (
-      <div className="text-center py-5">
+      <div
+        className="text-center py-5"
+        style={{ color: theme.text }}
+      >
         <h5>Please login to view adoption requests.</h5>
       </div>
     );
   }
 
   return (
-    <div className="container py-4">
-      <h2 className="mb-4">Adoption Requests</h2>
+    <div
+      className="container py-4"
+      style={{
+        background: theme.background,
+        color: theme.text,
+        minHeight: "70vh",
+        borderRadius: "12px",
+      }}
+    >
+      <h2 className="mb-4" style={{ color: theme.text }}>
+        Adoption Requests
+      </h2>
 
       {requests.length === 0 ? (
-        <div className="text-center py-5">
-          <h5>No adoption requests received yet.</h5>
-          <p className="text-muted">
+        <div
+          className="text-center py-5"
+          style={{
+            ...cardStyle,
+            padding: "35px 15px",
+          }}
+        >
+          <h5 style={{ color: theme.text }}>
+            No adoption requests received yet.
+          </h5>
+          <p style={{ color: theme.muted }}>
             Requests from people interested in your pets will appear here.
           </p>
         </div>
@@ -220,7 +277,10 @@ function AdoptionRequests() {
 
             return (
               <div className="col-md-6" key={request.id}>
-                <div className="card h-100 shadow-sm p-3">
+                <div
+                  className="card h-100 shadow-sm p-3"
+                  style={cardStyle}
+                >
                   <div className="d-flex gap-3 align-items-center mb-3">
                     {pet?.image && (
                       <img
@@ -236,9 +296,11 @@ function AdoptionRequests() {
                     )}
 
                     <div>
-                      <h5>{request.petName || pet?.name}</h5>
+                      <h5 style={{ color: theme.text }}>
+                        {request.petName || pet?.name}
+                      </h5>
 
-                      <p className="mb-1">
+                      <p className="mb-1" style={{ color: theme.text }}>
                         Applicant: {applicantName}
                       </p>
 
@@ -256,18 +318,37 @@ function AdoptionRequests() {
                     </div>
                   </div>
 
-                  <hr />
+                  <hr style={{ borderColor: theme.border }} />
 
-                  <p>
-                    <strong>Email:</strong> {applicantEmail}
-                  </p>
+                  {[
+                    ["Email", applicantEmail],
+                    ["Address", request.formData?.address || "Not provided"],
+                    ["Living Type", request.formData?.livingType || "Not provided"],
+                    ["Experience", request.formData?.experience || "Not provided"],
+                    ["Reason", request.formData?.reason || "Not provided"],
+                    ["Request Date", request.date || "Not available"],
+                  ].map(([label, value]) => (
+                    <p key={label} style={{ color: theme.text }}>
+                      <strong>{label}:</strong> {value}
+                    </p>
+                  ))}
 
                   {status === "Accepted" && (
-                    <div className="alert alert-success">
+                    <div
+                      className="alert"
+                      style={{
+                        background: theme.successBg,
+                        color: theme.successText,
+                        border: "none",
+                      }}
+                    >
                       <strong>Applicant Contact Number:</strong>
                       <p className="mb-0">
                         {applicantPhone ? (
-                          <a href={`tel:${applicantPhone}`}>
+                          <a
+                            href={`tel:${applicantPhone}`}
+                            style={{ color: theme.successText }}
+                          >
                             {applicantPhone}
                           </a>
                         ) : (
@@ -277,51 +358,20 @@ function AdoptionRequests() {
                     </div>
                   )}
 
-                  <p>
-                    <strong>Address:</strong>{" "}
-                    {request.formData?.address || "Not provided"}
-                  </p>
-
-                  <p>
-                    <strong>Living Type:</strong>{" "}
-                    {request.formData?.livingType || "Not provided"}
-                  </p>
-
-                  <p>
-                    <strong>Experience:</strong>{" "}
-                    {request.formData?.experience || "Not provided"}
-                  </p>
-
-                  <p>
-                    <strong>Reason:</strong>{" "}
-                    {request.formData?.reason || "Not provided"}
-                  </p>
-
-                  <p>
-                    <strong>Request Date:</strong>{" "}
-                    {request.date || "Not available"}
-                  </p>
-
                   {status === "Pending" && (
                     <div className="d-flex gap-2 mt-3">
                       <button
                         className="btn btn-success"
                         disabled={updatingId === request.id}
-                        onClick={() =>
-                          updateStatus(request, "Accepted")
-                        }
+                        onClick={() => updateStatus(request, "Accepted")}
                       >
-                        {updatingId === request.id
-                          ? "Updating..."
-                          : "Accept"}
+                        {updatingId === request.id ? "Updating..." : "Accept"}
                       </button>
 
                       <button
                         className="btn btn-danger"
                         disabled={updatingId === request.id}
-                        onClick={() =>
-                          updateStatus(request, "Declined")
-                        }
+                        onClick={() => updateStatus(request, "Declined")}
                       >
                         Decline
                       </button>
@@ -338,4 +388,3 @@ function AdoptionRequests() {
 }
 
 export default AdoptionRequests;
-

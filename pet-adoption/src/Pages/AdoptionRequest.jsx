@@ -19,6 +19,37 @@ function AdoptionRequest() {
 
   const applicantId = user?.id || user?._id;
 
+  const [isDark, setIsDark] = useState(
+    document.querySelector(".pawhaven-app")?.classList.contains("dark-mode") || false
+  );
+
+  useEffect(() => {
+    const app = document.querySelector(".pawhaven-app");
+    if (!app) return;
+
+    const observer = new MutationObserver(() => {
+      setIsDark(app.classList.contains("dark-mode"));
+    });
+
+    observer.observe(app, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const theme = {
+    page: isDark ? "#181818" : "#fffaf5",
+    card: isDark ? "#292929" : "#ffffff",
+    text: isDark ? "#f5f0eb" : "#493b35",
+    muted: isDark ? "#c0b8b0" : "#81736b",
+    border: isDark ? "#505050" : "#eadfd5",
+    soft: isDark ? "#353535" : "#fffaf5",
+    input: isDark ? "#353535" : "#ffffff",
+    button: isDark ? "#789477" : "#198754",
+  };
+
   const [pet, setPet] = useState(null);
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -175,11 +206,7 @@ function AdoptionRequest() {
         },
 
         status: "Pending",
-
-        // Exact submission timestamp for latest-first sorting
         createdAt: new Date().toISOString(),
-
-        // Existing display date
         date: new Date().toLocaleDateString(),
       };
 
@@ -210,12 +237,48 @@ function AdoptionRequest() {
     }
   };
 
+  const inputStyle = {
+    background: theme.input,
+    color: theme.text,
+    border: `1px solid ${theme.border}`,
+    borderRadius: "8px",
+    padding: "11px 13px",
+    colorScheme: isDark ? "dark" : "light",
+    transition: "0.3s",
+  };
+
+  const labelStyle = {
+    color: theme.text,
+    fontWeight: "600",
+    marginBottom: "8px",
+  };
+
+  const backButtonStyle = {
+    background: theme.soft,
+    color: theme.text,
+    border: `1px solid ${theme.border}`,
+    borderRadius: "8px",
+    padding: "9px 16px",
+    marginBottom: "22px",
+    cursor: "pointer",
+  };
+
   if (!user) {
     return (
-      <div className="container py-5 text-center">
+      <div
+        className="container py-5 text-center"
+        style={{ background: theme.page, color: theme.text }}
+      >
         <h3>Please login to apply for adoption.</h3>
         <button
-          className="btn btn-success mt-3"
+          style={{
+            background: theme.button,
+            color: "#fff",
+            border: "none",
+            padding: "10px 20px",
+            borderRadius: "7px",
+            marginTop: "15px",
+          }}
           onClick={() => navigate("/login")}
         >
           Login
@@ -226,7 +289,10 @@ function AdoptionRequest() {
 
   if (loading) {
     return (
-      <div className="container py-5 text-center">
+      <div
+        className="container py-5 text-center"
+        style={{ background: theme.page, color: theme.text }}
+      >
         Loading adoption form...
       </div>
     );
@@ -234,10 +300,20 @@ function AdoptionRequest() {
 
   if (!pet) {
     return (
-      <div className="container py-5 text-center">
+      <div
+        className="container py-5 text-center"
+        style={{ background: theme.page, color: theme.text }}
+      >
         <h3>Pet not found.</h3>
         <button
-          className="btn btn-success mt-3"
+          style={{
+            background: theme.button,
+            color: "#fff",
+            border: "none",
+            padding: "10px 20px",
+            borderRadius: "7px",
+            marginTop: "15px",
+          }}
           onClick={() => navigate("/pets")}
         >
           Browse Pets
@@ -247,170 +323,281 @@ function AdoptionRequest() {
   }
 
   return (
-    <div className="container py-5">
-      <div className="mx-auto" style={{ maxWidth: "750px" }}>
-        <button
-          className="btn btn-outline-secondary mb-4"
-          onClick={() => navigate(`/pet/${pet.id}`)}
-        >
-          ← Back to Pet
-        </button>
+    <div
+      className="adoption-request-page"
+      style={{
+        background: theme.page,
+        color: theme.text,
+        minHeight: "100vh",
+        padding: "35px 0",
+        transition: "0.3s",
+      }}
+    >
+      <style>{`
+        .adoption-request-page .form-control,
+        .adoption-request-page .form-select {
+          background-color: ${theme.input} !important;
+          color: ${theme.text} !important;
+          border-color: ${theme.border} !important;
+        }
 
-        <div className="card shadow-sm border-0">
-          <div className="card-body p-4 p-md-5">
-            <div className="text-center mb-4">
-              <h2>Adoption Application 🐾</h2>
-              <p className="text-muted">
-                Fill in your details to apply for adopting {pet.name}.
-              </p>
-            </div>
+        .adoption-request-page .form-control::placeholder {
+          color: ${theme.muted} !important;
+        }
 
-            <div
-              className="d-flex align-items-center gap-3 mb-4 p-3 rounded"
-              style={{ background: "#fffaf5" }}
-            >
-              <img
-                src={pet.image || "https://placehold.co/100x100?text=Pet"}
-                alt={pet.name}
-                style={{
-                  width: "90px",
-                  height: "90px",
-                  objectFit: "cover",
-                  borderRadius: "12px",
-                }}
-              />
+        .adoption-request-page .form-control:focus,
+        .adoption-request-page .form-select:focus {
+          border-color: ${isDark ? "#789477" : "#b69b89"} !important;
+          box-shadow: 0 0 0 0.2rem ${isDark ? "rgba(120,148,119,0.2)" : "rgba(182,155,137,0.2)"} !important;
+        }
 
-              <div>
-                <h5 className="mb-1">{pet.name}</h5>
-                <p className="text-muted mb-0">
-                  {pet.breed} · {pet.location}
+        .adoption-request-page .form-check-label {
+          color: ${theme.text};
+        }
+
+        .adoption-request-page .form-check-input {
+          background-color: ${theme.input};
+          border-color: ${theme.border};
+        }
+
+        .adoption-request-page .form-check-input:checked {
+          background-color: ${theme.button};
+          border-color: ${theme.button};
+        }
+
+        .adoption-request-page option {
+          background: ${theme.card};
+          color: ${theme.text};
+        }
+      `}</style>
+
+      <div className="container">
+        <div className="mx-auto" style={{ maxWidth: "750px" }}>
+          <button
+            style={backButtonStyle}
+            onClick={() => navigate(`/pet/${pet.id}`)}
+          >
+            ← Back to Pet
+          </button>
+
+          <div
+            className="card shadow-sm"
+            style={{
+              background: theme.card,
+              border: `1px solid ${theme.border}`,
+              borderRadius: "14px",
+              color: theme.text,
+              overflow: "hidden",
+            }}
+          >
+            <div className="card-body p-4 p-md-5">
+              <div className="text-center mb-4">
+                <h2 style={{ color: theme.text }}>
+                  Adoption Application 🐾
+                </h2>
+
+                <p style={{ color: theme.muted }}>
+                  Fill in your details to apply for adopting {pet.name}.
                 </p>
               </div>
-            </div>
 
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label className="form-label">Full Name</label>
-                <input
-                  type="text"
-                  name="fullName"
-                  className="form-control"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="row">
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    className="form-control"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">Phone</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    className="form-control"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">Address</label>
-                <textarea
-                  name="address"
-                  className="form-control"
-                  rows="3"
-                  value={formData.address}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">Living Type</label>
-                <select
-                  name="livingType"
-                  className="form-select"
-                  value={formData.livingType}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select living type</option>
-                  <option value="House">House</option>
-                  <option value="Apartment">Apartment</option>
-                  <option value="Independent House">
-                    Independent House
-                  </option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">
-                  Previous Pet Experience
-                </label>
-                <textarea
-                  name="experience"
-                  className="form-control"
-                  rows="3"
-                  value={formData.experience}
-                  onChange={handleChange}
-                  placeholder="Tell us about your previous experience with pets..."
-                  required
-                />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label">
-                  Why do you want to adopt {pet.name}?
-                </label>
-                <textarea
-                  name="reason"
-                  className="form-control"
-                  rows="4"
-                  value={formData.reason}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="form-check mb-4">
-                <input
-                  type="checkbox"
-                  name="agree"
-                  id="agree"
-                  className="form-check-input"
-                  checked={formData.agree}
-                  onChange={handleChange}
-                />
-                <label className="form-check-label" htmlFor="agree">
-                  I agree to the adoption terms and conditions.
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                className="btn btn-success w-100 py-2"
-                disabled={submitting}
+              <div
+                className="d-flex align-items-center gap-3 mb-4 p-3 rounded"
+                style={{
+                  background: theme.soft,
+                  border: `1px solid ${theme.border}`,
+                }}
               >
-                {submitting
-                  ? "Submitting..."
-                  : "Submit Adoption Request"}
-              </button>
-            </form>
+                <img
+                  src={pet.image || "https://placehold.co/100x100?text=Pet"}
+                  alt={pet.name}
+                  style={{
+                    width: "90px",
+                    height: "90px",
+                    objectFit: "cover",
+                    borderRadius: "12px",
+                  }}
+                />
+
+                <div>
+                  <h5
+                    className="mb-1"
+                    style={{ color: theme.text }}
+                  >
+                    {pet.name}
+                  </h5>
+
+                  <p
+                    className="mb-0"
+                    style={{ color: theme.muted }}
+                  >
+                    {pet.breed} · {pet.location}
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                  <label className="form-label" style={labelStyle}>
+                    Full Name
+                  </label>
+
+                  <input
+                    type="text"
+                    name="fullName"
+                    className="form-control"
+                    style={inputStyle}
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label" style={labelStyle}>
+                      Email
+                    </label>
+
+                    <input
+                      type="email"
+                      name="email"
+                      className="form-control"
+                      style={inputStyle}
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label" style={labelStyle}>
+                      Phone
+                    </label>
+
+                    <input
+                      type="tel"
+                      name="phone"
+                      className="form-control"
+                      style={inputStyle}
+                      value={formData.phone}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label" style={labelStyle}>
+                    Address
+                  </label>
+
+                  <textarea
+                    name="address"
+                    className="form-control"
+                    style={inputStyle}
+                    rows="3"
+                    value={formData.address}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label" style={labelStyle}>
+                    Living Type
+                  </label>
+
+                  <select
+                    name="livingType"
+                    className="form-select"
+                    style={inputStyle}
+                    value={formData.livingType}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select living type</option>
+                    <option value="House">House</option>
+                    <option value="Apartment">Apartment</option>
+                    <option value="Independent House">
+                      Independent House
+                    </option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label" style={labelStyle}>
+                    Previous Pet Experience
+                  </label>
+
+                  <textarea
+                    name="experience"
+                    className="form-control"
+                    style={inputStyle}
+                    rows="3"
+                    value={formData.experience}
+                    onChange={handleChange}
+                    placeholder="Tell us about your previous experience with pets..."
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label" style={labelStyle}>
+                    Why do you want to adopt {pet.name}?
+                  </label>
+
+                  <textarea
+                    name="reason"
+                    className="form-control"
+                    style={inputStyle}
+                    rows="4"
+                    value={formData.reason}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-check mb-4">
+                  <input
+                    type="checkbox"
+                    name="agree"
+                    id="agree"
+                    className="form-check-input"
+                    checked={formData.agree}
+                    onChange={handleChange}
+                  />
+
+                  <label
+                    className="form-check-label"
+                    htmlFor="agree"
+                  >
+                    I agree to the adoption terms and conditions.
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-100 py-2"
+                  disabled={submitting}
+                  style={{
+                    background: theme.button,
+                    color: "#ffffff",
+                    border: "none",
+                    borderRadius: "8px",
+                    fontWeight: "600",
+                    fontSize: "16px",
+                    opacity: submitting ? 0.7 : 1,
+                    cursor: submitting ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {submitting
+                    ? "Submitting..."
+                    : "Submit Adoption Request"}
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
@@ -419,4 +606,3 @@ function AdoptionRequest() {
 }
 
 export default AdoptionRequest;
-

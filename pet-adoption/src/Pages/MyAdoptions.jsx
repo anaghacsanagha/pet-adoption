@@ -13,10 +13,42 @@ const API = "https://pawhaven-server.onrender.com";
 function MyAdoptions() {
   const [adoptions, setAdoptions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isDark, setIsDark] = useState(
+    document.querySelector(".pawhaven-app")?.classList.contains("dark-mode") || false
+  );
 
   const user = JSON.parse(
     localStorage.getItem("pawhavenUser") || "null"
   );
+
+  // Detect dark/light mode changes
+  useEffect(() => {
+    const app = document.querySelector(".pawhaven-app");
+
+    if (!app) return;
+
+    const observer = new MutationObserver(() => {
+      setIsDark(app.classList.contains("dark-mode"));
+    });
+
+    observer.observe(app, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const theme = {
+    page: isDark ? "#181818" : "#fffaf5",
+    card: isDark ? "#292929" : "#ffffff",
+    text: isDark ? "#f5f0eb" : "#493b35",
+    muted: isDark ? "#c0b8b0" : "#81736b",
+    border: isDark ? "#494949" : "#eadfd5",
+    soft: isDark ? "#353535" : "#f8f3ed",
+    green: isDark ? "#9bbd98" : "#789477",
+    link: isDark ? "#a8cfa5" : "#567b55",
+  };
 
   const fetchAdoptions = async () => {
     if (!user) {
@@ -42,8 +74,6 @@ function MyAdoptions() {
       const petData = await petRes.json();
       const userData = await userRes.json();
 
-      // Get only requests submitted by the logged-in user.
-      // Reverse database order: latest POST appears first.
       const userAdoptions = adoptionData
         .filter((item) => {
           const applicantId = item.applicantId || item.userId;
@@ -114,9 +144,7 @@ function MyAdoptions() {
         )
       );
 
-      await showSuccess(
-        "Request cancelled successfully!"
-      );
+      await showSuccess("Request cancelled successfully!");
     } catch (error) {
       console.error("Cancel error:", error);
       await showError(
@@ -127,14 +155,87 @@ function MyAdoptions() {
 
   if (loading) {
     return (
-      <div className="text-center py-5">
+      <div
+        className="text-center py-5"
+        style={{
+          background: theme.page,
+          color: theme.text,
+          minHeight: "300px",
+        }}
+      >
         Loading your adoption requests...
       </div>
     );
   }
 
   return (
-    <div className="my-adoptions-page">
+    <div
+      className="my-adoptions-page"
+      style={{
+        background: theme.page,
+        color: theme.text,
+        minHeight: "100%",
+        transition: "background 0.3s, color 0.3s",
+      }}
+    >
+      <style>{`
+        .my-adoptions-page .my-adoption-card {
+          background: ${theme.card} !important;
+          border: 1px solid ${theme.border} !important;
+          color: ${theme.text} !important;
+          transition: 0.3s;
+        }
+
+        .my-adoptions-page .my-adoption-content h3,
+        .my-adoptions-page .my-adoption-content h5 {
+          color: ${theme.text} !important;
+        }
+
+        .my-adoptions-page .my-adoption-content p,
+        .my-adoptions-page .my-adoption-status-row span {
+          color: ${theme.muted} !important;
+        }
+
+        .my-adoptions-page .my-adoption-card a {
+          color: ${theme.link} !important;
+        }
+
+        .my-adoptions-page .my-adoption-card .owner-contact {
+          background: ${theme.soft} !important;
+          border-color: ${theme.border} !important;
+          color: ${theme.text} !important;
+        }
+
+        .my-adoptions-page .my-adoption-card .owner-contact p,
+        .my-adoptions-page .my-adoption-card .owner-contact strong {
+          color: ${theme.text} !important;
+        }
+
+        .my-adoptions-page .my-adoptions-empty {
+          background: ${theme.card} !important;
+          border-color: ${theme.border} !important;
+          color: ${theme.text} !important;
+        }
+
+        .my-adoptions-page .my-adoptions-empty h3 {
+          color: ${theme.text} !important;
+        }
+
+        .my-adoptions-page .my-adoptions-empty p {
+          color: ${theme.muted} !important;
+        }
+
+        .my-adoptions-page .adoption-cancel-btn {
+          background: #c75b5b !important;
+          color: #ffffff !important;
+        }
+
+        .my-adoptions-page .my-adoptions-browse-btn {
+          background: ${theme.green} !important;
+          color: #ffffff !important;
+        }
+      `}</style>
+
       <div className="container">
         <SectionTitle
           subtitle="YOUR ADOPTION JOURNEY"
@@ -184,7 +285,14 @@ function MyAdoptions() {
                     </div>
 
                     {accepted && (
-                      <div className="mt-3 p-3 rounded border">
+                      <div
+                        className="owner-contact mt-3 p-3 rounded border"
+                        style={{
+                          background: theme.soft,
+                          borderColor: theme.border,
+                          color: theme.text,
+                        }}
+                      >
                         <h5>Pet Owner Contact</h5>
 
                         <p className="mb-1">
@@ -243,4 +351,3 @@ function MyAdoptions() {
 }
 
 export default MyAdoptions;
-

@@ -22,6 +22,275 @@ function PetDocuments() {
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
 
+  const [isDark, setIsDark] = useState(
+    () =>
+      document
+        .querySelector(".pawhaven-app")
+        ?.classList.contains("dark-mode") || false
+  );
+
+  // Detect dark/light mode changes
+  useEffect(() => {
+    const app = document.querySelector(".pawhaven-app");
+
+    if (!app) return;
+
+    const observer = new MutationObserver(() => {
+      setIsDark(app.classList.contains("dark-mode"));
+    });
+
+    observer.observe(app, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const theme = {
+    background: isDark ? "#303030" : "#FFFFFF",
+    section: isDark ? "#252525" : "#FFF8F3",
+    item: isDark ? "#292929" : "#FFFCFA",
+    input: isDark ? "#252525" : "#FFFFFF",
+    text: isDark ? "#F5EEE7" : "#765846",
+    muted: isDark ? "#BDB0A5" : "#A18472",
+    border: isDark ? "#49413C" : "#F1E5DD",
+    formBorder: isDark ? "#51443D" : "#EAD8CC",
+    divider: isDark ? "#49413C" : "#F0E3DA",
+    cancelBg: isDark ? "#51443D" : "#EFE5DF",
+    cancelText: isDark ? "#F5EEE7" : "#765846",
+    viewBg: isDark ? "#304536" : "#E8F0E6",
+    viewText: isDark ? "#B9D9B5" : "#557653",
+    deleteBg: isDark ? "#512F2F" : "#FBEAEA",
+    deleteText: isDark ? "#FFAAAA" : "#B54747",
+  };
+
+  const styles = {
+    container: {
+      width: "100%",
+      padding: "15px 0",
+      boxSizing: "border-box",
+    },
+
+    card: {
+      width: "100%",
+      maxWidth: "950px",
+      margin: "0 auto",
+      background: theme.background,
+      padding: "30px",
+      borderRadius: "16px",
+      border: `1px solid ${theme.border}`,
+      boxShadow: isDark
+        ? "0 5px 20px rgba(0,0,0,0.25)"
+        : "0 5px 20px rgba(120,85,65,0.09)",
+      color: theme.text,
+      boxSizing: "border-box",
+      transition: "all 0.3s ease",
+    },
+
+    header: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: "15px",
+      flexWrap: "wrap",
+      marginBottom: "25px",
+    },
+
+    heading: {
+      fontSize: "27px",
+      color: theme.text,
+      margin: "0 0 10px",
+    },
+
+    description: {
+      color: theme.muted,
+      margin: 0,
+      lineHeight: 1.6,
+    },
+
+    addButton: {
+      padding: "12px 20px",
+      background: "#789477",
+      color: "#FFFFFF",
+      border: "none",
+      borderRadius: "8px",
+      fontWeight: "bold",
+      fontSize: "14px",
+      cursor: "pointer",
+    },
+
+    form: {
+      marginBottom: "25px",
+      padding: "22px",
+      borderRadius: "10px",
+      background: theme.section,
+      border: `1px solid ${theme.formBorder}`,
+    },
+
+    formHeading: {
+      margin: "0 0 18px",
+      fontSize: "19px",
+      color: theme.text,
+    },
+
+    fileInput: {
+      width: "100%",
+      padding: "13px",
+      background: theme.input,
+      color: theme.text,
+      border: `1px dashed ${isDark ? "#81736B" : "#C8A995"}`,
+      borderRadius: "8px",
+      boxSizing: "border-box",
+    },
+
+    fileName: {
+      marginTop: "10px",
+      overflowWrap: "anywhere",
+      fontSize: "14px",
+      color: theme.text,
+    },
+
+    buttonGroup: {
+      display: "flex",
+      gap: "10px",
+      flexWrap: "wrap",
+      marginTop: "15px",
+    },
+
+    uploadButton: {
+      padding: "12px 18px",
+      background: "#789477",
+      color: "#FFFFFF",
+      border: "none",
+      borderRadius: "8px",
+      fontWeight: "bold",
+      cursor: "pointer",
+    },
+
+    cancelButton: {
+      padding: "12px 18px",
+      background: theme.cancelBg,
+      color: theme.cancelText,
+      border: "none",
+      borderRadius: "8px",
+      fontWeight: "bold",
+      cursor: "pointer",
+    },
+
+    hint: {
+      color: theme.muted,
+      fontSize: "12px",
+      marginBottom: 0,
+      marginTop: "12px",
+    },
+
+    documentSection: {
+      borderTop: `1px solid ${theme.divider}`,
+      paddingTop: "20px",
+    },
+
+    sectionHeading: {
+      color: theme.text,
+      fontSize: "19px",
+      marginBottom: "15px",
+    },
+
+    emptyBox: {
+      textAlign: "center",
+      padding: "35px 15px",
+      background: theme.item,
+      color: theme.text,
+      border: `1px dashed ${theme.formBorder}`,
+      borderRadius: "10px",
+    },
+
+    emptyIcon: {
+      fontSize: "35px",
+    },
+
+    emptySubtext: {
+      color: theme.muted,
+      fontSize: "13px",
+    },
+
+    documentList: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "10px",
+    },
+
+    documentItem: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: "12px",
+      flexWrap: "wrap",
+      padding: "15px",
+      background: theme.item,
+      border: `1px solid ${theme.border}`,
+      borderRadius: "9px",
+    },
+
+    documentDetails: {
+      display: "flex",
+      alignItems: "center",
+      gap: "12px",
+      minWidth: 0,
+      flex: 1,
+    },
+
+    documentIcon: {
+      fontSize: "27px",
+    },
+
+    documentName: {
+      display: "block",
+      fontSize: "14px",
+      overflowWrap: "anywhere",
+      color: theme.text,
+    },
+
+    date: {
+      margin: "5px 0 0",
+      fontSize: "11px",
+      color: theme.muted,
+    },
+
+    actions: {
+      display: "flex",
+      gap: "7px",
+    },
+
+    viewButton: {
+      padding: "7px 12px",
+      background: theme.viewBg,
+      color: theme.viewText,
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer",
+    },
+
+    deleteButton: {
+      padding: "7px 12px",
+      background: theme.deleteBg,
+      color: theme.deleteText,
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer",
+    },
+
+    message: {
+      marginTop: "12px",
+      fontWeight: "500",
+      overflowWrap: "anywhere",
+    },
+
+    info: {
+      color: theme.muted,
+    },
+  };
+
   // Fetch only manually uploaded documents
   const fetchDocuments = async () => {
     try {
@@ -263,7 +532,6 @@ function PetDocuments() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-
         <div style={styles.header}>
           <div>
             <h2 style={styles.heading}>📄 Pet Documents</h2>
@@ -311,7 +579,11 @@ function PetDocuments() {
               <p
                 style={{
                   ...styles.message,
-                  color: success ? "green" : "#B54747",
+                  color: success
+                    ? "#4caf50"
+                    : isDark
+                    ? "#ff9999"
+                    : "#B54747",
                 }}
               >
                 {message}
@@ -322,7 +594,11 @@ function PetDocuments() {
               <button
                 type="submit"
                 disabled={loading}
-                style={styles.uploadButton}
+                style={{
+                  ...styles.uploadButton,
+                  opacity: loading ? 0.7 : 1,
+                  cursor: loading ? "not-allowed" : "pointer",
+                }}
               >
                 {loading ? "Uploading..." : "Upload Document"}
               </button>
@@ -409,230 +685,9 @@ function PetDocuments() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   );
 }
 
-const styles = {
-  container: {
-    width: "100%",
-    padding: "15px 0",
-    boxSizing: "border-box",
-  },
-
-  card: {
-    width: "100%",
-    maxWidth: "950px",
-    margin: "0 auto",
-    background: "#FFFFFF",
-    padding: "30px",
-    borderRadius: "16px",
-    border: "1px solid #F1E5DD",
-    boxShadow: "0 5px 20px rgba(120,85,65,0.09)",
-    color: "#765846",
-    boxSizing: "border-box",
-  },
-
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: "15px",
-    flexWrap: "wrap",
-    marginBottom: "25px",
-  },
-
-  heading: {
-    fontSize: "27px",
-    color: "#765846",
-    margin: "0 0 10px",
-  },
-
-  description: {
-    color: "#A18472",
-    margin: 0,
-    lineHeight: 1.6,
-  },
-
-  addButton: {
-    padding: "12px 20px",
-    background: "#789477",
-    color: "#FFFFFF",
-    border: "none",
-    borderRadius: "8px",
-    fontWeight: "bold",
-    fontSize: "14px",
-    cursor: "pointer",
-  },
-
-  form: {
-    marginBottom: "25px",
-    padding: "22px",
-    borderRadius: "10px",
-    background: "#FFF8F3",
-    border: "1px solid #EAD8CC",
-  },
-
-  formHeading: {
-    margin: "0 0 18px",
-    fontSize: "19px",
-    color: "#765846",
-  },
-
-  fileInput: {
-    width: "100%",
-    padding: "13px",
-    background: "#FFFFFF",
-    border: "1px dashed #C8A995",
-    borderRadius: "8px",
-    boxSizing: "border-box",
-  },
-
-  fileName: {
-    marginTop: "10px",
-    overflowWrap: "anywhere",
-    fontSize: "14px",
-  },
-
-  buttonGroup: {
-    display: "flex",
-    gap: "10px",
-    flexWrap: "wrap",
-    marginTop: "15px",
-  },
-
-  uploadButton: {
-    padding: "12px 18px",
-    background: "#765846",
-    color: "#FFFFFF",
-    border: "none",
-    borderRadius: "8px",
-    fontWeight: "bold",
-    cursor: "pointer",
-  },
-
-  cancelButton: {
-    padding: "12px 18px",
-    background: "#EFE5DF",
-    color: "#765846",
-    border: "none",
-    borderRadius: "8px",
-    fontWeight: "bold",
-    cursor: "pointer",
-  },
-
-  hint: {
-    color: "#A18472",
-    fontSize: "12px",
-    marginBottom: 0,
-  },
-
-  documentSection: {
-    borderTop: "1px solid #F0E3DA",
-    paddingTop: "20px",
-  },
-
-  sectionHeading: {
-    color: "#765846",
-    fontSize: "19px",
-    marginBottom: "15px",
-  },
-
-  emptyBox: {
-    textAlign: "center",
-    padding: "35px 15px",
-    background: "#FFFCFA",
-    border: "1px dashed #EAD8CC",
-    borderRadius: "10px",
-  },
-
-  emptyIcon: {
-    fontSize: "35px",
-  },
-
-  emptySubtext: {
-    color: "#A18472",
-    fontSize: "13px",
-  },
-
-  documentList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-  },
-
-  documentItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: "12px",
-    flexWrap: "wrap",
-    padding: "15px",
-    background: "#FFFCFA",
-    border: "1px solid #F0E3DA",
-    borderRadius: "9px",
-  },
-
-  documentDetails: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    minWidth: 0,
-    flex: 1,
-  },
-
-  documentIcon: {
-    fontSize: "27px",
-  },
-
-  documentName: {
-    display: "block",
-    fontSize: "14px",
-    overflowWrap: "anywhere",
-    color: "#765846",
-  },
-
-  date: {
-    margin: "5px 0 0",
-    fontSize: "11px",
-    color: "#A18472",
-  },
-
-  actions: {
-    display: "flex",
-    gap: "7px",
-  },
-
-  viewButton: {
-    padding: "7px 12px",
-    background: "#E8F0E6",
-    color: "#557653",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-  },
-
-  deleteButton: {
-    padding: "7px 12px",
-    background: "#FBEAEA",
-    color: "#B54747",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-  },
-
-  message: {
-    marginTop: "12px",
-    fontWeight: "500",
-    overflowWrap: "anywhere",
-  },
-
-  info: {
-    color: "#A18472",
-  },
-};
-
 export default PetDocuments;
-

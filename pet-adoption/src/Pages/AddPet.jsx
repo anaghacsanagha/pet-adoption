@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   showSuccess,
@@ -15,6 +15,40 @@ function AddPet() {
   const user = JSON.parse(
     localStorage.getItem("pawhavenUser") || "null"
   );
+
+  const [isDark, setIsDark] = useState(
+    document.querySelector(".pawhaven-app")?.classList.contains("dark-mode") || false
+  );
+
+  useEffect(() => {
+    const app = document.querySelector(".pawhaven-app");
+    if (!app) return;
+
+    const observer = new MutationObserver(() => {
+      setIsDark(app.classList.contains("dark-mode"));
+    });
+
+    observer.observe(app, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const theme = {
+    page: isDark ? "#181818" : "#FFF8F3",
+    card: isDark ? "#292929" : "#ffffff",
+    text: isDark ? "#f5f0eb" : "#765846",
+    muted: isDark ? "#c0b8b0" : "#A18472",
+    input: isDark ? "#353535" : "#fffdfb",
+    border: isDark ? "#505050" : "#e5d6cc",
+    soft: isDark ? "#353535" : "#FFF8F3",
+    button: isDark ? "#789477" : "#D9B8A7",
+    buttonText: isDark ? "#ffffff" : "#604735",
+    selected: isDark ? "#29432e" : "#F0F7F0",
+    selectedText: isDark ? "#b7d9b5" : "#63866b",
+  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -62,20 +96,17 @@ function AddPet() {
     },
   ];
 
-  // Read file as Base64
   const readFile = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
 
       reader.onload = () => resolve(reader.result);
-
       reader.onerror = () =>
         reject(new Error(`Unable to read ${file.name}`));
 
       reader.readAsDataURL(file);
     });
 
-  // Handle form inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -85,7 +116,6 @@ function AddPet() {
     }));
   };
 
-  // Pet image upload
   const handleImageChange = (e) => {
     const file = e.target.files[0];
 
@@ -117,7 +147,6 @@ function AddPet() {
     reader.readAsDataURL(file);
   };
 
-  // Document upload selection
   const handleDocumentChange = (e) => {
     const { name, files } = e.target;
     const file = files[0];
@@ -155,7 +184,6 @@ function AddPet() {
     }));
   };
 
-  // Remove selected document
   const removeDocument = (documentType) => {
     setDocuments((previous) => ({
       ...previous,
@@ -171,7 +199,6 @@ function AddPet() {
     }
   };
 
-  // Save pet and attached documents
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -221,7 +248,6 @@ function AddPet() {
         uploadedBy: "user",
       };
 
-      // Save pet
       const response = await fetch(`${API}/pets`, {
         method: "POST",
         headers: {
@@ -239,7 +265,6 @@ function AddPet() {
 
       const savedPet = await response.json();
 
-      // Upload selected documents
       const selectedDocuments = Object.entries(documents).filter(
         ([, file]) => file !== null
       );
@@ -322,38 +347,84 @@ function AddPet() {
   const inputStyle = {
     width: "100%",
     padding: "12px",
-    border: "1px solid #e5d6cc",
+    border: `1px solid ${theme.border}`,
     borderRadius: "8px",
     marginTop: "7px",
+    marginBottom: "0",
     fontSize: "15px",
     boxSizing: "border-box",
-    background: "#fffdfb",
+    background: theme.input,
+    color: theme.text,
+    colorScheme: isDark ? "dark" : "light",
+    outline: "none",
+    transition: "0.3s",
   };
 
   const labelStyle = {
     display: "block",
     fontWeight: "600",
     marginBottom: "17px",
-    color: "#765846",
+    color: theme.text,
   };
 
   return (
     <div
       style={{
-        background: "#FFF8F3",
+        background: theme.page,
         minHeight: "100vh",
         padding: "35px 20px",
+        color: theme.text,
+        transition: "0.3s",
       }}
     >
+      <style>{`
+        .add-pet-form input::placeholder,
+        .add-pet-form textarea::placeholder {
+          color: ${theme.muted};
+          opacity: 0.8;
+        }
+
+        .add-pet-form input,
+        .add-pet-form textarea,
+        .add-pet-form select {
+          color: ${theme.text} !important;
+        }
+
+        .add-pet-form input:focus,
+        .add-pet-form textarea:focus,
+        .add-pet-form select:focus {
+          border-color: ${theme.button} !important;
+          box-shadow: 0 0 0 2px ${isDark ? "rgba(120,148,119,0.2)" : "rgba(217,184,167,0.2)"};
+        }
+
+        .add-pet-form input[type="file"]::file-selector-button {
+          background: ${theme.soft};
+          color: ${theme.text};
+          border: 1px solid ${theme.border};
+          border-radius: 5px;
+          padding: 7px 10px;
+          margin-right: 10px;
+          cursor: pointer;
+        }
+
+        .add-pet-form select option {
+          background: ${theme.card};
+          color: ${theme.text};
+        }
+      `}</style>
+
       <div
         style={{
           maxWidth: "750px",
           margin: "auto",
-          background: "#fff",
+          background: theme.card,
           padding: "35px",
           borderRadius: "15px",
-          boxShadow: "0 5px 25px rgba(120,85,65,0.07)",
-          border: "1px solid #F1E5DD",
+          boxShadow: isDark
+            ? "0 5px 25px rgba(0,0,0,0.25)"
+            : "0 5px 25px rgba(120,85,65,0.07)",
+          border: `1px solid ${theme.border}`,
+          transition: "0.3s",
         }}
       >
         <button
@@ -361,8 +432,8 @@ function AddPet() {
           onClick={() => navigate("/dashboard")}
           style={{
             border: "none",
-            background: "#F3E5DC",
-            color: "#765846",
+            background: theme.soft,
+            color: theme.text,
             padding: "10px 17px",
             borderRadius: "8px",
             cursor: "pointer",
@@ -376,7 +447,7 @@ function AddPet() {
         <h1
           style={{
             textAlign: "center",
-            color: "#765846",
+            color: theme.text,
             marginBottom: "10px",
           }}
         >
@@ -386,15 +457,14 @@ function AddPet() {
         <p
           style={{
             textAlign: "center",
-            color: "#A18472",
+            color: theme.muted,
             marginBottom: "30px",
           }}
         >
           Share your pet with people looking for a loving companion.
         </p>
 
-        <form onSubmit={handleSubmit}>
-          {/* Pet Image */}
+        <form className="add-pet-form" onSubmit={handleSubmit}>
           <label style={labelStyle}>
             Pet Image *
 
@@ -421,7 +491,6 @@ function AddPet() {
             />
           )}
 
-          {/* Pet Name */}
           <label style={labelStyle}>
             Pet Name *
 
@@ -435,7 +504,6 @@ function AddPet() {
             />
           </label>
 
-          {/* Pet Type */}
           <label style={labelStyle}>
             Pet Type *
 
@@ -449,7 +517,6 @@ function AddPet() {
             />
           </label>
 
-          {/* Breed */}
           <label style={labelStyle}>
             Breed *
 
@@ -463,7 +530,6 @@ function AddPet() {
             />
           </label>
 
-          {/* Age */}
           <label style={labelStyle}>
             Age *
 
@@ -480,7 +546,6 @@ function AddPet() {
             />
           </label>
 
-          {/* Gender */}
           <label style={labelStyle}>
             Gender *
 
@@ -495,7 +560,6 @@ function AddPet() {
             </select>
           </label>
 
-          {/* Location */}
           <label style={labelStyle}>
             Location *
 
@@ -509,7 +573,6 @@ function AddPet() {
             />
           </label>
 
-          {/* Vaccination */}
           <label style={labelStyle}>
             Vaccination Status *
 
@@ -524,7 +587,6 @@ function AddPet() {
             </select>
           </label>
 
-          {/* Personality */}
           <label style={labelStyle}>
             Personality
 
@@ -537,7 +599,6 @@ function AddPet() {
             />
           </label>
 
-          {/* About */}
           <label style={labelStyle}>
             About Your Pet *
 
@@ -552,19 +613,19 @@ function AddPet() {
             />
           </label>
 
-          {/* Pet Documents */}
           <div
             style={{
               marginTop: "30px",
               padding: "22px",
-              background: "#FFF8F3",
-              border: "1px solid #EAD8CC",
+              background: theme.soft,
+              border: `1px solid ${theme.border}`,
               borderRadius: "12px",
+              transition: "0.3s",
             }}
           >
             <h2
               style={{
-                color: "#765846",
+                color: theme.text,
                 marginTop: 0,
                 fontSize: "21px",
               }}
@@ -574,7 +635,7 @@ function AddPet() {
 
             <p
               style={{
-                color: "#A18472",
+                color: theme.muted,
                 fontSize: "14px",
                 marginBottom: "22px",
               }}
@@ -607,7 +668,7 @@ function AddPet() {
                       alignItems: "center",
                       justifyContent: "space-between",
                       gap: "10px",
-                      background: "#F0F7F0",
+                      background: theme.selected,
                       padding: "10px 12px",
                       borderRadius: "8px",
                       marginTop: "-10px",
@@ -615,7 +676,7 @@ function AddPet() {
                   >
                     <p
                       style={{
-                        color: "#63866b",
+                        color: theme.selectedText,
                         fontSize: "13px",
                         margin: 0,
                         overflowWrap: "anywhere",
@@ -634,8 +695,8 @@ function AddPet() {
                         height: "28px",
                         border: "none",
                         borderRadius: "50%",
-                        background: "#FCE4E4",
-                        color: "#C0392B",
+                        background: isDark ? "#553333" : "#FCE4E4",
+                        color: isDark ? "#ffaaaa" : "#C0392B",
                         fontSize: "18px",
                         fontWeight: "bold",
                         cursor: "pointer",
@@ -652,7 +713,7 @@ function AddPet() {
             <p
               style={{
                 fontSize: "12px",
-                color: "#A18472",
+                color: theme.muted,
                 marginBottom: 0,
               }}
             >
@@ -661,12 +722,11 @@ function AddPet() {
             </p>
           </div>
 
-          {/* Error */}
           {error && (
             <p
               style={{
-                color: "#c0392b",
-                background: "#fff0ed",
+                color: isDark ? "#ffaaaa" : "#c0392b",
+                background: isDark ? "#472b2b" : "#fff0ed",
                 padding: "12px",
                 borderRadius: "8px",
                 margin: "15px 0",
@@ -677,7 +737,6 @@ function AddPet() {
             </p>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
@@ -685,13 +744,15 @@ function AddPet() {
               width: "100%",
               padding: "14px",
               marginTop: "20px",
-              background: "#D9B8A7",
-              color: "#604735",
+              background: theme.button,
+              color: theme.buttonText,
               border: "none",
               borderRadius: "8px",
               fontSize: "16px",
               fontWeight: "600",
               cursor: loading ? "not-allowed" : "pointer",
+              opacity: loading ? 0.7 : 1,
+              transition: "0.3s",
             }}
           >
             {loading ? "Uploading..." : "Upload Pet for Adoption"}
@@ -703,4 +764,3 @@ function AddPet() {
 }
 
 export default AddPet;
-
