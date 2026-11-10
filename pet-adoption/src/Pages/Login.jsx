@@ -5,6 +5,8 @@ import Header from "../Components/Header";
 import Footer from "../Components/Footer";
 import { showSuccess } from "../utils/sweetAlert";
 
+const API = "https://pawhaven-server.onrender.com";
+
 function Login() {
   const navigate = useNavigate();
 
@@ -31,7 +33,7 @@ function Login() {
       setLoading(true);
       setError("");
 
-      const response = await fetch("http://localhost:3000/users");
+      const response = await fetch(`${API}/users`);
 
       if (!response.ok) {
         throw new Error("Server connection failed");
@@ -39,13 +41,17 @@ function Login() {
 
       const users = await response.json();
 
+      if (!Array.isArray(users)) {
+        throw new Error("Invalid users data from server");
+      }
+
       const email = formData.email.trim().toLowerCase();
       const password = formData.password;
 
       const user = users.find(
         (item) =>
           item.email?.trim().toLowerCase() === email &&
-          item.password === password
+          String(item.password) === password
       );
 
       if (!user) {
@@ -54,7 +60,7 @@ function Login() {
       }
 
       const loggedInUser = {
-        id: user.id,
+        id: user.id || user._id,
         name: user.name,
         email: user.email,
         phone: user.phone || "",
@@ -74,8 +80,9 @@ function Login() {
 
     } catch (err) {
       console.error("Login Error:", err);
+
       setError(
-        "Unable to connect to server. Please check whether JSON Server is running."
+        "Unable to connect to server. Please try again."
       );
     } finally {
       setLoading(false);
